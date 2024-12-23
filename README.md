@@ -55,7 +55,7 @@ room/
    ```bash
    python app.py
    ```
-4. Open your browser and navigate to `http://127.0.0.1:5000/` to access the application.
+4. Open your browser and navigate to `http://localhost/` to access the application.
 
 ## Contributions
 Contributions to improve or expand the project are welcome! Feel free to submit issues or create pull requests on the [GitHub repository](https://github.com/SerkaFox/room).
