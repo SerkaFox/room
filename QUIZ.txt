@@ -1,0 +1,300 @@
+1.	¿Qué significa IDE en el contexto de la programación?
+A) Integrated Development Environment
+B) Intelligent Data Executor
+C) Internal Debugging Engine
+D) Interactive Data Editor
+Correcta: A
+2.	¿Cuál de estos es un ejemplo de un IDE?
+A) Microsoft Excel
+B) Visual Studio Code
+C) Sublime Text
+D) Eclipse
+Correcta: D
+3.	¿Cuál es la principal diferencia entre un IDE y un editor de texto?
+A) Los IDE son solo para programadores avanzados
+B) Los editores tienen herramientas de compilación integradas
+C) Los IDE incluyen depuradores y compiladores, los editores no
+D) No hay diferencias significativas
+Correcta: C
+4.	¿Qué editor es conocido por su simplicidad y soporte para múltiples lenguajes?
+A) Sublime Text
+B) NetBeans
+C) PyCharm
+D) IntelliJ IDEA
+Correcta: A
+5.	¿Cuál de las siguientes características es clave en un IDE moderno?
+A) Sistema de gestión de bases de datos
+B) Autocompletado y resaltado de sintaxis
+C) Creación de gráficos automáticamente
+D) Interacción directa con hardware
+Correcta: B
+6.	¿Qué lenguaje es especialmente compatible con el IDE PyCharm?
+A) Python
+B) Java
+C) C++
+D) JavaScript
+Correcta: A
+7.	¿Qué IDE es más comúnmente utilizado para desarrollar aplicaciones móviles en Android?
+A) Visual Studio
+B) NetBeans
+C) Android Studio
+D) Eclipse
+Correcta: C
+8.	¿Cuál de estos editores se puede usar directamente desde la terminal?
+A) IntelliJ IDEA
+B) Visual Studio
+C) Vim
+D) Eclipse
+Correcta: C
+9.	¿Qué editor de texto es ampliamente utilizado por desarrolladores web por su velocidad y simplicidad?
+A) Brackets
+B) Visual Studio Code
+C) Atom
+D) Todos los anteriores
+Correcta: D
+11.	¿Qué herramienta de Microsoft es conocida por su integración con el entorno de desarrollo .NET?
+A) PyCharm
+B) Visual Studio
+C) Atom
+D) IntelliJ IDEA
+Correcta: B
+12.	¿Qué tipo de lenguaje es Python?
+A) Lenguaje compilado
+B) Lenguaje interpretado
+C) Lenguaje ensamblador
+D) Lenguaje de máquina
+Correcta: B
+13.	¿Qué lenguaje es más utilizado para desarrollar aplicaciones web del lado del cliente?
+A) PHP
+B) JavaScript
+C) C++
+D) Java
+Correcta: B
+14.	¿Cuál de estos lenguajes es más utilizado para desarrollo de sistemas operativos?
+A) Ruby
+B) C
+C) Python
+D) JavaScript
+Correcta: B
+15.	¿Qué lenguaje se considera un lenguaje de programación orientado a objetos puro?
+A) C++
+B) Java
+C) Python
+D) Ruby
+Correcta: B
+16.	¿Cuál es la principal aplicación de SQL?
+A) Crear gráficos interactivos
+B) Manipular datos en bases de datos relacionales
+C) Diseñar interfaces de usuario
+D) Controlar hardware
+Correcta: B
+17.	¿Qué lenguaje es comúnmente usado para ciencia de datos y aprendizaje automático?
+A) Python
+B) C
+C) PHP
+D) Swift
+Correcta: A
+18.	¿Qué lenguaje se utiliza principalmente para aplicaciones iOS?
+A) Java
+B) Kotlin
+C) Swift
+D) Ruby
+Correcta: C
+19.	¿Qué tipo de lenguaje es HTML?
+A) Lenguaje de programación
+B) Lenguaje de marcado
+C) Lenguaje ensamblador
+D) Lenguaje interpretado
+Correcta: B
+20.	¿Cuál de los siguientes lenguajes es un lenguaje compilado?
+A) Python
+B) JavaScript
+C) C++
+D) Ruby
+Correcta: C
+21.	¿Qué lenguaje es ideal para la creación de APIs y servicios web?
+A) Python
+B) C++
+C) JavaScript
+D) PHP
+Correcta: A
+22.	¿Qué estructura de control se utiliza para repetir un bloque de código?
+A) If
+B) For
+C) Try
+D) Return
+Correcta: B
+23.	¿Qué es una variable en programación?
+A) Una estructura para almacenar datos
+B) Una operación matemática
+C) Una función de sistema
+D) Un bloque de comentarios
+Correcta: A
+24.	¿Qué operador se utiliza para asignar un valor en muchas lenguas de programación?
+A) =
+B) ==
+C) >
+D) <
+Correcta: A
+25.	¿Cuál de las siguientes opciones describe un bucle infinito?
+A) Un bucle que termina después de una condición
+B) Un bucle que nunca cumple su condición de finalización
+C) Un bucle que solo se ejecuta una vez
+D) Un bucle que depende de una variable externa
+Correcta: B
+26.	¿Cuál es el resultado de 5 % 2 en la mayoría de los lenguajes de programación?
+A) 2
+B) 1
+C) 0
+D) 5
+Correcta: B
+26.	¿Qué palabra clave se usa para declarar una función en Python?
+A) function
+B) def
+C) func
+D) declare
+Correcta: B
+27.	¿Qué estructura se utiliza para manejar excepciones en Python?
+A) if-else
+B) try-except
+C) loop
+D) case-when
+Correcta: B
+28.	En programación orientada a objetos, ¿qué es una clase?
+A) Un tipo de variable especial
+B) Una plantilla para crear objetos
+C) Una función compleja
+D) Un bucle estructurado
+Correcta: B
+29.	¿Qué es un objeto en programación orientada a objetos?
+A) Una variable que almacena texto
+B) Una instancia de una clase
+C) Una estructura de control
+D) Una condición de bucle
+Correcta: B
+30.	¿Qué palabra clave se usa en Python para verificar una condición?
+A) check
+B) validate
+C) if
+D) loop
+Correcta: C
+31.	¿Cuál de las siguientes opciones es un operador lógico?
+A) +
+B) AND
+C) =
+D) %
+Correcta: B
+32.	¿Qué significa la palabra clave return en una función?
+A) Define una nueva variable
+B) Finaliza la ejecución de la función y devuelve un valor
+C) Escribe un comentario
+D) Almacena datos temporalmente
+Correcta: B
+33.	¿Qué es una lista en Python?
+A) Una estructura de datos ordenada y mutable
+B) Una estructura de datos inmutable
+C) Un bucle infinito
+D) Una clase predefinida
+Correcta: A
+34.	¿Qué operador lógico significa "o" en Python?
+A) or
+B) ||
+C) &&
+D) and
+Correcta: A
+35.	¿En un lenguaje como C++, int a = 10; declara?:
+A) Un objeto
+B) Una variable de tipo entero
+C) Una lista
+D) Una función
+Correcta: B
+36.	¿Qué significa la palabra clave static en muchos lenguajes de programación?
+A) Una variable local que mantiene su valor entre llamadas
+B) Una función de clase
+C) Una constante global
+D) Un tipo de bucle
+Correcta: A
+37.	¿Qué es una variable global?
+A) Una variable definida dentro de una función
+B) Una variable accesible en todo el programa
+C) Una constante fija
+D) Una función recursiva
+Correcta: B
+38.	¿Qué es la recursión en programación?
+A) Llamar a una función dentro de un bucle
+B) Llamar a una función desde otra función
+C) Llamar a una función dentro de sí misma
+D) Evitar la ejecución de una función
+Correcta: C
+39.	¿Qué tipo de datos devuelve una función en C si se declara como void?
+A) Una cadena
+B) Un número entero
+C) Ningún valor
+D) Un valor booleano
+Correcta: C
+40.	¿Qué significa "compilar" un programa?
+A) Escribir el código fuente
+B) Traducir el código fuente a código máquina
+C) Ejecutar el programa directamente
+D) Revisar los errores manualmente
+Correcta: B
+41.	¿Qué significa SQL?
+A) Sequential Query Language
+B) Structured Query Language
+C) Systematic Query Logic
+D) Secure Query Language
+Correcta: B
+42.	¿Qué comando se utiliza para obtener datos de una tabla en SQL?
+A) INSERT
+B) SELECT
+C) UPDATE
+D) DELETE
+Correcta: B
+43.	¿Qué comando SQL se usa para modificar un registro existente?
+A) SELECT
+B) ALTER
+C) UPDATE
+D) MODIFY
+Correcta: C
+44.	¿Qué significa el término "Primary Key" en una base de datos?
+A) Una columna que contiene valores únicos para identificar registros
+B) Una columna que almacena datos duplicados
+C) Una tabla relacionada
+D) Una consulta especial
+Correcta: A
+45.	¿Qué es un "Join" en SQL?
+A) Un tipo de dato
+B) Una combinación de tablas basada en una condición común
+C) Una función de agregación
+D) Un filtro de datos
+Correcta: B
+46.	¿Qué comando SQL se utiliza para eliminar una tabla completa?
+A) DROP TABLE
+B) DELETE FROM
+C) REMOVE TABLE
+D) ERASE TABLE
+Correcta: A
+47.	¿Cuál es el propósito del comando GROUP BY en SQL?
+A) Agrupar filas que tienen valores iguales en columnas específicas
+B) Eliminar duplicados
+C) Ordenar resultados
+D) Insertar datos en grupos
+Correcta: A
+48.	¿Qué comando SQL se usa para contar el número de registros en una tabla?
+A) COUNT()
+B) TOTAL()
+C) SUM()
+D) CALC()
+Correcta: A
+49.	¿Qué es un índice en una base de datos?
+A) Una copia completa de la tabla
+B) Una estructura que mejora la velocidad de búsqueda
+C) Una columna con datos únicos
+D) Una función de SQL
+Correcta: B
+50.	¿Cuál de estas bases de datos es relacional?
+A) MongoDB
+B) MySQL
+C) Firebase
+D) Cassandra
+Correcta: B
