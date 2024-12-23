@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        @font-face {
+            font-family: 'BD_CartoonShoutRegular';
+            src: url("{{ url_for('static', filename='fonts/BD_Cartoon_Shout-webfont.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'BD_CartoonShoutRegular', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'BD_CartoonShoutRegular';
+            text-align: center;
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .chat-box {
+            border: 1px solid #FFD700;
+            background: linear-gradient(145deg, #222, #444);
+            border-radius: 15px;
+            box-shadow: 0 0 20px 5px rgba(255, 215, 0, 0.6);
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .chat-message {
+            border-bottom: 1px dashed #555;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .chat-message strong {
+            color: #FFD700;
+        }
+
+        .chat-message img {
+            border: 3px solid #FFD700;
+            border-radius: 10px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .chat-message a {
+            color: #FFD700;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        .chat-timestamp {
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .return-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            text-decoration: none;
+            background-color: #FFD700;
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: 'BD_CartoonShoutRegular';
+            transition: background-color 0.3s ease;
+        }
+
+        .return-link:hover {
+            background-color: #ffeb3b;
+        }
+
+        form {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        textarea {
+            resize: none;
+            padding: 10px;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            background-color: #222;
+            color: #FFD700;
+            font-family: 'BD_CartoonShoutRegular', Arial, sans-serif;
+            flex: 1;
+        }
+
+        .file-upload {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-upload label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: #FFD700;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .file-upload label:hover {
+            background-color: #ffeb3b;
+        }
+
+        .file-upload label i {
+            font-size: 18px;
+            color: #000;
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #FFD700;
+            font-size: 18px;
+            margin-left: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .icon-button:hover {
+            color: #ffeb3b;
+        }
+
+        .icon-button i {
+            pointer-events: none;
+        }
+
+        .save-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #FFD700;
+            font-size: 18px;
+            margin-top: 10px;
+            transition: color 0.3s ease;
+        }
+
+        .save-button:hover {
+            color: #ffeb3b;
+        }
+
+        .save-button i {
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <a href="/cuenta" class="return-link">Volver</a>
+    <h1>Chat</h1>
+
+    <!-- Чат -->
+    <div class="chat-box" id="chat-box">
+        {% for message in messages %}
+        <div class="chat-message" data-id="{{ message[0] }}">
+            <div>
+                <strong>{{ message[1] }}</strong>: 
+                {{ message[2].replace('\n', '<br>')|safe if message[2] else '' }}
+                {% if message[3] %}
+                    {% if message[3].endswith('.jpg') or message[3].endswith('.jpeg') or message[3].endswith('.png') or message[3].endswith('.gif') %}
+                        <br>
+                        <img src="/{{ message[3] }}" alt="Imagen subida" width="200">
+                    {% else %}
+                        <a href="/{{ message[3] }}" download>{{ message[3].split('/')[-1] }}</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="chat-actions">
+                <span class="chat-timestamp">{{ message[4] }}</span>
+                {% if session['username'] == message[1] %}
+                <button class="icon-button edit-button" data-id="{{ message[0] }}">
+                    <i class="fas fa-pencil-alt">✏️</i>
+                </button>
+                <button class="icon-button delete-button" data-id="{{ message[0] }}">
+                    <i class="fas fa-trash">🗑️</i>
+                </button>
+                {% endif %}
+            </div>
+            <!-- Форма редактирования -->
+            {% if session['username'] == message[1] %}
+            <form method="POST" action="{{ url_for('edit_message') }}" class="edit-form" data-id="{{ message[0] }}" style="display: none;">
+                <textarea name="updated_message">{{ message[2] }}</textarea>
+                <input type="hidden" name="message_id" value="{{ message[0] }}">
+                <button type="submit" class="save-button">
+                    <i class="fas fa-save">💾</i>
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Форма отправки сообщения -->
+    <form method="POST" enctype="multipart/form-data" id="chat-form">
+        <textarea name="message" id="message-input" rows="3" placeholder="Escribe tu mensaje..."></textarea>
+        <div class="file-upload">
+            <label for="file-input">
+                <i>&#128206;</i>
+            </label>
+            <input type="file" id="file-input" name="image">
+        </div>
+    </form>
+<script>
+// Автоматическая отправка файла при выборе
+const fileInput = document.getElementById('file-input');
+fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                body: formData,
+            });
+            if (response.ok) {
+                console.log('Файл успешно отправлен.');
+            } else {
+                console.error('Ошибка при отправке файла:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Ошибка сети при отправке файла:', error);
+        }
+    }
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+
+    // Обработка отправки сообщения
+    chatForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        chatForm.submit();
+    });
+
+    // Обработка нажатий клавиш Enter и Ctrl+Enter
+    messageInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            if (event.ctrlKey) {
+                // Переход на новую строку с Ctrl+Enter
+                const cursorPosition = messageInput.selectionStart;
+                const text = messageInput.value;
+                messageInput.value = text.slice(0, cursorPosition) + '\n' + text.slice(cursorPosition);
+                messageInput.selectionStart = messageInput.selectionEnd = cursorPosition + 1;
+            } else {
+                // Отправка сообщения с Enter
+                event.preventDefault();
+                chatForm.submit();
+            }
+        }
+    });
+});
+</script>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+    const chatBox = document.getElementById('chat-box');
+    let isEditing = false; // Флаг для предотвращения обновления во время редактирования
+
+    // Функция для настройки событий
+    function setupEventListeners() {
+        // Обработчик редактирования
+        chatBox.querySelectorAll('.edit-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const messageId = button.dataset.id;
+                const form = chatBox.querySelector(`.edit-form[data-id="${messageId}"]`);
+                isEditing = true; // Устанавливаем флаг редактирования
+                if (form) {
+                    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                }
+            });
+        });
+
+        // Обработчик отправки формы редактирования
+        chatBox.querySelectorAll('.edit-form').forEach(form => {
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+                const messageId = formData.get('message_id');
+                const updatedMessage = formData.get('updated_message');
+
+                try {
+                    const response = await fetch('/edit_message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message_id: messageId,
+                            updated_message: updatedMessage,
+                        }),
+                    });
+
+                    if (response.ok) {
+                        const updatedData = await response.json();
+                        const messageElement = chatBox.querySelector(`.chat-message[data-id="${messageId}"]`);
+
+                        // Обновляем текст сообщения в DOM
+                        messageElement.querySelector('.edit-form').style.display = 'none';
+                        messageElement.querySelector('.message-text').innerHTML = updatedData.message.replace(/\n/g, '<br>');
+                        isEditing = false; // Сбрасываем флаг после успешного редактирования
+                    } else {
+                        console.error('Ошибка сохранения сообщения:', response.statusText);
+                        isEditing = false; // Сбрасываем флаг даже при ошибке
+                    }
+                } catch (error) {
+                    console.error('Ошибка сети при сохранении сообщения:', error);
+                    isEditing = false; // Сбрасываем флаг при ошибке сети
+                }
+            });
+        });
+
+        // Обработчик удаления
+        chatBox.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                event.preventDefault();
+                const messageId = button.dataset.id;
+
+                try {
+                    const response = await fetch('/delete_message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ message_id: messageId }),
+                    });
+
+                    if (response.ok) {
+                        const messageElement = chatBox.querySelector(`.chat-message[data-id="${messageId}"]`);
+                        messageElement.remove();
+                    } else {
+                        console.error('Ошибка удаления сообщения:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Ошибка сети при удалении сообщения:', error);
+                }
+            });
+        });
+    }
+
+    // Функция для загрузки новых сообщений
+    async function fetchMessages() {
+        if (!isEditing) { // Проверяем, чтобы обновление не мешало редактированию
+            try {
+                const response = await fetch('/fetch_messages');
+                if (response.ok) {
+                    const data = await response.text();
+                    chatBox.innerHTML = data; // Обновляем содержимое блока сообщений
+                    setupEventListeners(); // Повторно добавляем обработчики событий
+                } else {
+                    console.error('Ошибка загрузки сообщений:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Ошибка сети при загрузке сообщений:', error);
+            }
+        }
+    }
+
+    // Автоматическая загрузка сообщений каждые 3 секунды
+    setInterval(fetchMessages, 3000);
+
+    // Первоначальная настройка событий
+    setupEventListeners();
+});
+</script>
+
+
+</body>
+</html>

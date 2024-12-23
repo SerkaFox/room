@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Datos</title>
+</head>
+<body>
+    <h1>Agregar Datos a la Base de Datos "panaderia"</h1>
+
+    <!-- Selección de tabla -->
+    <form method="POST">
+        <label for="tabla">Seleccione una tabla:</label>
+        <select name="tabla" onchange="this.form.submit()">
+            <option value="">-- Seleccione una tabla --</option>
+            {% for tabla in tablas_campos.keys() %}
+                <option value="{{ tabla }}" {% if tabla == tabla_seleccionada %}selected{% endif %}>{{ tabla }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Formulario dinámico -->
+    {% if tabla_seleccionada %}
+        <h2>Agregar datos en la tabla: {{ tabla_seleccionada }}</h2>
+        <form method="POST">
+            <input type="hidden" name="tabla" value="{{ tabla_seleccionada }}">
+            {% for campo in campos %}
+                <label for="{{ campo }}">{{ campo.replace('_', ' ').capitalize() }}:</label>
+                <!-- Поля с внешними ключами -->
+                {% if campo in opciones %}
+                    <select name="{{ campo }}" required>
+                        <option value="">-- Seleccione una opción --</option>
+                        {% for opcion in opciones[campo] %}
+                            <option value="{{ opcion[0] }}">{{ opcion[1] }}</option>
+                        {% endfor %}
+                    </select>
+                <!-- Поля для дат -->
+                {% elif 'fecha' in campo %}
+                    <input type="datetime-local" name="{{ campo }}" required>
+                <!-- Поля с фиксированными значениями для "estado" -->
+                {% elif 'estado' in campo %}
+                    <select name="{{ campo }}" required>
+                        <option value="pedido">Pedido</option>
+                        <option value="enviado">Enviado</option>
+                        <option value="recibido">Recibido</option>
+                        <option value="cancelado">Cancelado</option>
+                        <option value="devuelto">Devuelto</option>
+                    </select>
+                <!-- Обычные текстовые поля -->
+                {% else %}
+                    <input type="text" name="{{ campo }}" required>
+                {% endif %}
+                <br><br>
+            {% endfor %}
+            <button type="submit">Agregar</button>
+        </form>
+    {% endif %}
+
+    <!-- Ссылка для возврата на главную -->
+    <a href="{{ url_for('index') }}">Volver al inicio</a>
+</body>
+</html>
