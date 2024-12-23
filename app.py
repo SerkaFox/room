@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_from_directory, make_response
 from flask_bcrypt import Bcrypt
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, PasswordField, validators
 from wtforms.validators import DataRequired
 import pymysql
+import jwt
+from datetime import datetime, timedelta, timezone
 
 # Инициализация Flask
 app = Flask(__name__)
@@ -15,7 +17,16 @@ app.config['MYSQL_USER'] = 'alumno'
 app.config['MYSQL_PASSWORD'] = 'alumno'
 app.config['MYSQL_DB'] = 'flask_auth'
 app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=7)  # Срок действия токена
 
+
+@app.after_request
+def add_no_cache_headers(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
 
 
 from werkzeug.utils import secure_filename
@@ -30,7 +41,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
-    if 'username' not in session:
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
 
     if request.method == 'POST':
@@ -175,6 +188,8 @@ class LoginForm(Form):
 @app.route('/')
 def index():
     return render_template('index.html')
+    
+    
 @app.route('/reset_profile', methods=['GET', 'POST'])
 def reset_profile():
     if request.method == 'POST':
@@ -208,11 +223,6 @@ def reset_profile():
 
     return render_template('reset_profile.html')
     
-    
-    
-
-
-
 
 
 
@@ -370,6 +380,30 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
     
+@app.before_request
+def refresh_auth_token():
+    user = get_current_user()
+    if user:
+        token = jwt.encode({
+            'user_id': user['user_id'],
+            'username': user['username'],
+            'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
+        }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
+
+        response = make_response()
+        response.set_cookie('auth_token', token, httponly=True, samesite='Lax')
+
+
+
+def refresh_token(user):
+    token = jwt.encode({
+        'user_id': user['user_id'],
+        'username': user['username'],
+        'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
+    }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
+    return token
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
@@ -383,21 +417,56 @@ def login():
 
         if result > 0:
             data = cur.fetchone()
-            user_id = data[0]  # Предполагается, что user_id находится в первой колонке
+            user_id = data[0]
             password_hash = data[2]
 
             if bcrypt.check_password_hash(password_hash, password_candidate):
-                session['logged_in'] = True
-                session['username'] = username
-                session['user_id'] = user_id  # Добавляем user_id в сессию
-                flash('Вы вошли в систему', 'success')
-                return redirect(url_for('cuenta'))
+                # Генерация токена
+                token = jwt.encode({
+                    'user_id': user_id,
+                    'username': username,
+                    'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
+                }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
+
+                # Сохранение токена в куки
+                response = redirect(url_for('cuenta'))
+                response.set_cookie(
+                    'auth_token',
+                    token,
+                    httponly=True,
+                    samesite='Lax'  # 'Lax' для страниц одного домена
+                )
+
+                flash('Вы успешно вошли!', 'success')
+                return response
             else:
                 flash('Неправильный пароль', 'danger')
         else:
             flash('Пользователь не найден', 'danger')
+
         cur.close()
     return render_template('login.html', form=form)
+
+
+
+def get_current_user():
+    token = request.cookies.get('auth_token')
+    print("Token in cookies:", token)  # Отладка
+    if not token:
+        print("Token not found.")
+        return None
+
+    try:
+        data = jwt.decode(token, app.config['JWT_SECRET_KEY'], algorithms=['HS256'])
+        print("Decoded token data:", data)  # Отладка
+        return data
+    except jwt.ExpiredSignatureError:
+        print("Token expired.")
+        return None
+    except jwt.InvalidTokenError:
+        print("Invalid token.")
+        return None
+
 
 
 # Сохранение результатов игры
@@ -435,56 +504,56 @@ def save_galaga_result():
     return jsonify({'status': 'error', 'message': 'Not logged in.'}), 403
 
 
-# Страница профиля
 @app.route('/cuenta')
 def cuenta():
-    if 'username' in session:
-        username = session['username']
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
+        return redirect('/login')
 
-        # Получение результатов Pacman
-        cur = mysql.connection.cursor()
-        cur.execute("""
-            SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at
-            FROM game_results r
-            JOIN users u ON r.user_id = u.id
-            GROUP BY u.username
-            ORDER BY score DESC
-            LIMIT 10
-        """)
-        pacman_results = cur.fetchall()
+    username = user['username']
 
-        # Получение результатов Galaga
-        cur.execute("""
-            SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at
-            FROM galaga_results r
-            JOIN users u ON r.user_id = u.id
-            GROUP BY u.username
-            ORDER BY score DESC
-            LIMIT 10
-        """)
-        galaga_results = cur.fetchall()
-        cur.close()
+    # Получение результатов игр
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at
+        FROM game_results r
+        JOIN users u ON r.user_id = u.id
+        GROUP BY u.username
+        ORDER BY score DESC
+        LIMIT 10
+    """)
+    pacman_results = cur.fetchall()
 
-        # Рендеринг страницы с разделением по играм
-        return render_template(
-            'cuenta.html',
-            username=username,
-            pacman_results=pacman_results,
-            galaga_results=galaga_results
-        )
-    return redirect('/login')
+    cur.execute("""
+        SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at
+        FROM galaga_results r
+        JOIN users u ON r.user_id = u.id
+        GROUP BY u.username
+        ORDER BY score DESC
+        LIMIT 10
+    """)
+    galaga_results = cur.fetchall()
+    cur.close()
 
+    return render_template(
+        'cuenta.html',
+        username=username,
+        pacman_results=pacman_results,
+        galaga_results=galaga_results
+    )
 
-# Опросник
 # Опросник
 import random
 
 @app.route('/quiz', methods=['GET', 'POST'])
 def quiz():
-    if 'username' not in session:
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
 
-    username = session['username']
+    username = user['username']
     cur = mysql.connection.cursor()
     cur.execute("SELECT id FROM users WHERE username = %s", [username])
     user = cur.fetchone()
@@ -696,18 +765,6 @@ def quiz_results():
     cur.close()
 
     return render_template('quiz_results.html', correct_count=correct_count, incorrect_answers=incorrect_answers)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
