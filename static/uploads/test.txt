@@ -1,0 +1,170 @@
+-- Paso 1: Crear la base de datos y usarla
+DROP DATABASE IF EXISTS notas_alumnos;
+CREATE DATABASE notas_alumnos;
+USE notas_alumnos;
+
+-- Paso 2: Crear la tabla 'alumnos'
+CREATE TABLE alumnos (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY, -- Identificador único para cada alumno
+    nombre VARCHAR(50) NOT NULL,                -- Nombre del alumno, no puede ser nulo
+    apellido1 VARCHAR(50) NOT NULL,             -- Primer apellido, no puede ser nulo
+    apellido2 VARCHAR(50),                      -- Segundo apellido, puede ser nulo
+    nota FLOAT                                  -- Nota del alumno, puede ser decimal
+);
+
+-- Paso 4: Insertar datos en la tabla 'alumnos'
+INSERT INTO alumnos (nombre, apellido1, apellido2, nota) VALUES ('Pepe', 'López', 'López', -1); -- Nota ajustada a 0 por el trigger
+INSERT INTO alumnos (nombre, apellido1, apellido2, nota) VALUES ('María', 'Sánchez', 'Sánchez', 11); -- Nota ajustada a 10 por el trigger
+INSERT INTO alumnos (nombre, apellido1, apellido2, nota) VALUES ('Juan', 'Pérez', 'Pérez', 8.5); -- Nota válida, no se ajusta
+
+-- Paso 3: Crear triggers para validar la nota antes de insertar o actualizar
+-- procedure comprobar notas
+
+DELIMITER $$
+
+CREATE PROCEDURE ajustar_nota(INOUT nota FLOAT)
+BEGIN
+    IF nota IS NULL THEN
+        SET nota = 0;
+    ELSEIF nota < 0 THEN
+        SET nota = 0;
+    ELSEIF nota > 10 THEN
+        SET nota = 10;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+-- Trigger para validar la nota antes de insertar
+DROP TRIGGER IF EXISTS comprobar_nota_antes_insertar$$
+CREATE TRIGGER comprobar_nota_antes_insertar
+BEFORE INSERT ON alumnos FOR EACH ROW
+BEGIN
+    CALL ajustar_nota(NEW.nota);
+END$$
+
+-- Trigger para validar la nota antes de actualizar
+DROP TRIGGER IF EXISTS comprobar_nota_antes_actualizar$$
+CREATE TRIGGER comprobar_nota_antes_actualizar
+BEFORE UPDATE ON alumnos FOR EACH ROW
+BEGIN
+    CALL ajustar_nota(NEW.nota);
+END$$
+
+DELIMITER ;
+
+
+
+-- Paso 6: Actualizar la nota de un alumno y verificar el ajuste por el trigger
+UPDATE alumnos SET nota = -4.09 WHERE id = 3; -- Nota ajustada a 0 por el trigger
+UPDATE alumnos SET nota = 14.27 WHERE id = 1; -- Nota ajustada a 10 por el trigger
+UPDATE alumnos SET nota = 9.57 WHERE id = 2; -- Nota válida, no se ajusta
+
+DELIMITER $$
+
+-- Создаем процедуру для вывода данных
+CREATE PROCEDURE mostrar_alumnos()
+BEGIN
+    DECLARE done INT DEFAULT 0; -- Индикатор завершения обработки курсора
+    DECLARE alumno_id INT; -- Переменная для хранения id
+    DECLARE nombre_alumno VARCHAR(50); -- Переменная для хранения имени
+    DECLARE apellido1_alumno VARCHAR(50); -- Переменная для хранения первого фамилии
+    DECLARE apellido2_alumno VARCHAR(50); -- Переменная для хранения второго фамилии
+    DECLARE nota_alumno FLOAT; -- Переменная для хранения оценки
+
+    -- Объявляем курсор
+    DECLARE alumnos_cursor CURSOR FOR
+        SELECT id, nombre, apellido1, apellido2, nota FROM alumnos;
+
+    -- Обрабатываем ситуацию, когда курсор завершает выборку
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- Открываем курсор
+    OPEN alumnos_cursor;
+
+    -- Перебираем записи из курсора
+    read_loop: LOOP
+        FETCH alumnos_cursor INTO alumno_id, nombre_alumno, apellido1_alumno, apellido2_alumno, nota_alumno;
+        IF done THEN
+            LEAVE read_loop; -- Прерываем цикл, если курсор завершил выборку
+        END IF;
+        
+        -- Выводим текущую запись
+        SELECT alumno_id AS 'ID', 
+               nombre_alumno AS 'Nombre', 
+               apellido1_alumno AS 'Primer Apellido', 
+               apellido2_alumno AS 'Segundo Apellido', 
+               nota_alumno AS 'Nota';
+    END LOOP;
+
+    -- Закрываем курсор
+    CLOSE alumnos_cursor;
+END$$
+
+DELIMITER ;
+
+-- Вызов процедуры
+CALL mostrar_alumnos();
+
+
+DELIMITER $$
+
+-- Создаем процедуру с использованием курсора
+CREATE PROCEDURE mostrar_alumnos_cursor2()
+BEGIN
+    DECLARE done INT DEFAULT 0; -- Индикатор завершения курсора
+    DECLARE alumno_id INT; -- Переменная для ID
+    DECLARE nombre_alumno VARCHAR(50); -- Переменная для имени
+    DECLARE apellido1_alumno VARCHAR(50); -- Переменная для первого фамилии
+    DECLARE apellido2_alumno VARCHAR(50); -- Переменная для второго фамилии
+    DECLARE nota_alumno FLOAT; -- Переменная для оценки
+
+    -- Объявляем курсор
+    DECLARE alumnos_cursor CURSOR FOR
+        SELECT id, nombre, apellido1, apellido2, nota FROM alumnos;
+
+    -- Обрабатываем ситуацию, когда выборка курсора завершена
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    -- Создаем временную таблицу для хранения данных
+    CREATE TEMPORARY TABLE IF NOT EXISTS resultados (
+        id INT,
+        nombre VARCHAR(50),
+        apellido1 VARCHAR(50),
+        apellido2 VARCHAR(50),
+        nota FLOAT
+    );
+
+    -- Открываем курсор
+    OPEN alumnos_cursor;
+
+    -- Перебираем записи курсора
+    read_loop: LOOP
+        FETCH alumnos_cursor INTO alumno_id, nombre_alumno, apellido1_alumno, apellido2_alumno, nota_alumno;
+        IF done THEN
+            LEAVE read_loop; -- Выходим из цикла, если данных больше нет
+        END IF;
+
+        -- Вставляем текущую запись в временную таблицу
+        INSERT INTO resultados (id, nombre, apellido1, apellido2, nota)
+        VALUES (alumno_id, nombre_alumno, apellido1_alumno, apellido2_alumno, nota_alumno);
+    END LOOP;
+
+    -- Закрываем курсор
+    CLOSE alumnos_cursor;
+
+    -- Выводим все записи из временной таблицы
+    SELECT * FROM resultados;
+
+    -- Удаляем временную таблицу
+    DROP TEMPORARY TABLE resultados;
+END$$
+
+DELIMITER ;
+
+-- Вызов процедуры
+CALL mostrar_alumnos_cursor2();
+
+
