@@ -1,0 +1,69 @@
+1. ¿Qué significa MVC?
+A) Model View Component
+B) Modelo Vista Controlador
+C) Minimum View Controller
+D) Modelo Valor Componente
+Correcta: B
+
+2. El lenguaje de programación que se utiliza con Delphi es:
+A) Visual Basic
+B) Java
+C) Object Pascal
+D) PHP
+Correcta: C
+
+3. Los tipos de nombres en las variables pueden ser:
+A) Simples y cualificados
+B) Sencillos
+C) Complejos
+D) Compuestos
+Correcta: A
+
+4. Las funciones de error que se utilizan en PL/SQL son:
+A) EXCEPTION
+B) SQLERR y SQLCode
+C) WHEN OTHERS
+D) SQLERROR
+Correcta: B
+
+5. En PL/SQL, el atributo %ROWCOUNT indica:
+A) Devuelve false para cualquier cursor implícito
+B) Devuelve true si una sentencia DML ha modificado una fila
+C) Devuelve el número de filas cambiadas por una sentencia DML
+D) Devuelve el número de secuencia
+Correcta: C
+
+6. Las fases del proceso de un procedimiento almacenado en T-SQL son:
+A) Creación, Ejecución y Plan de ejecución
+B) Análisis y desarrollo
+C) Planificación y ejecución
+D) Desarrollo y optimización
+Correcta: A
+
+7. En PL/SQL, la excepción WHEN NO_DATA_FOUND se ejecuta cuando:
+A) Se produce una división por 0
+B) Se utiliza un elemento no declarado o inicializado
+C) Cuando se devuelve un valor mayor que 0
+D) Cuando no se devuelve el valor correcto
+Correcta: D
+
+8. Cuando se lanza una excepción en PL/SQL, el control pasa a la zona:
+A) EXCEPTION
+B) BEGIN
+C) DECLARE
+D) END
+Correcta: A
+
+9. En las transacciones Oracle, SAVEPOINT se encarga de:
+A) Confirmar la transacción
+B) Deshacer la transacción
+C) Eliminar la transacción
+D) Guardar en un punto determinado la transacción
+Correcta: D
+
+10. Los hints o sugerencias se utilizan para:
+A) Actualizar una consulta
+B) Mejorar las sentencias DDL
+C) Mejorar la resolución de una consulta
+D) Afectar a varias consultas
+Correcta: C

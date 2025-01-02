@@ -41,14 +41,15 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
-    user = get_current_user()
-    if not user:
+    user = get_current_user()  # Получаем данные пользователя из токена
+    if not user:  # Если пользователь не авторизован
         flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
 
+    user_id = user['user_id']  # Извлекаем user_id из токена
+    username = user['username']  # Извлекаем имя пользователя из токена
+
     if request.method == 'POST':
-        user_id = session['user_id']
-        username = session['username']
         message = request.form.get('message', '').strip()
         image = request.files.get('image')
 
@@ -79,21 +80,24 @@ def chat():
     """)
     messages = cur.fetchall()
     cur.close()
-    print("Messages fetched from DB:", messages)
-    return render_template('chat.html', messages=messages)
+
+    # Передаём текущего пользователя в шаблон
+    return render_template('chat.html', messages=messages, current_user=username)
+
 
 from flask import request, jsonify
 
 @app.route('/edit_message', methods=['POST'])
 def edit_message():
-    if 'username' not in session:
+    user = get_current_user()  # Проверяем токен и получаем данные пользователя
+    if not user:  # Если пользователь не авторизован
         return jsonify({'error': 'Unauthorized'}), 403
 
     data = request.get_json()
     message_id = data.get('message_id')
     updated_message = data.get('updated_message')
 
-    if not message_id or not updated_message:
+    if not message_id or not updated_message:  # Проверка входных данных
         return jsonify({'error': 'Invalid data'}), 400
 
     cur = mysql.connection.cursor()
@@ -101,7 +105,7 @@ def edit_message():
     # Проверяем, что сообщение принадлежит текущему пользователю
     cur.execute("SELECT username FROM chat_messages WHERE id = %s", (message_id,))
     result = cur.fetchone()
-    if not result or result[0] != session['username']:
+    if not result or result[0] != user['username']:  # Сравниваем имя пользователя из токена
         cur.close()
         return jsonify({'error': 'Permission denied'}), 403
 
@@ -123,20 +127,25 @@ def edit_message():
     }), 200
 
 
+
 @app.route('/delete_message', methods=['POST'])
 def delete_message():
-    if 'username' not in session:
+    user = get_current_user()  # Проверяем токен и получаем данные пользователя
+    if not user:  # Если пользователь не авторизован
         return jsonify({'error': 'Unauthorized'}), 403
 
     data = request.get_json()
     message_id = data.get('message_id')
+
+    if not message_id:  # Проверяем, что `message_id` передан
+        return jsonify({'error': 'Invalid data'}), 400
 
     cur = mysql.connection.cursor()
 
     # Проверяем, что сообщение принадлежит текущему пользователю
     cur.execute("SELECT username FROM chat_messages WHERE id = %s", (message_id,))
     result = cur.fetchone()
-    if not result or result[0] != session['username']:
+    if not result or result[0] != user['username']:  # Сравниваем имя пользователя из токена
         cur.close()
         return jsonify({'error': 'Permission denied'}), 403
 
@@ -149,8 +158,15 @@ def delete_message():
 
 
 
+
 @app.route('/fetch_messages', methods=['GET'])
 def fetch_messages():
+    user = get_current_user()
+    if not user:  # Проверяем, авторизован ли пользователь
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    user_id = user['user_id']  # Извлекаем user_id из токена
+    username = user['username']  # Извлекаем имя пользователя из токена
     cur = mysql.connection.cursor()
     cur.execute("""
         SELECT id, username, message, image_path, created_at
@@ -162,7 +178,7 @@ def fetch_messages():
     cur.close()
 
     # Рендерим только часть HTML с сообщениями
-    return render_template('messages.html', messages=messages)
+    return render_template('messages.html', messages=messages, current_user=username)
 
 # Инициализация MySQL и Bcrypt
 mysql = MySQL(app)
@@ -184,10 +200,13 @@ class LoginForm(Form):
     username = StringField('Username', [validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
 
-# Главная страница
 @app.route('/')
 def index():
-    return render_template('index.html')
+    user = get_current_user()
+    if user:  # Если пользователь авторизован
+        return redirect(url_for('cuenta'))
+    return render_template('index.html')  # Главная страница для неавторизованных пользователей
+
     
     
 @app.route('/reset_profile', methods=['GET', 'POST'])
@@ -469,39 +488,41 @@ def get_current_user():
 
 
 
-# Сохранение результатов игры
 @app.route('/save_result', methods=['POST'])
 def save_result():
-    if 'username' in session:
-        data = request.get_json()
-        score = data.get('score', 0)
+    user = get_current_user()  # Проверяем токен и получаем данные пользователя
+    if not user:  # Если пользователь не авторизован
+        return jsonify({'status': 'error', 'message': 'Not logged in.'}), 403
 
-        # Получить user_id из сессии
-        user_id = session['user_id']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO game_results (user_id, score) VALUES (%s, %s)", (user_id, score))
-        mysql.connection.commit()
-        cur.close()
+    data = request.get_json()
+    score = data.get('score', 0)
 
-        return jsonify({'status': 'success', 'message': 'Score saved successfully.'})
-    return jsonify({'status': 'error', 'message': 'Not logged in.'}), 403
+    user_id = user['user_id']  # Получаем `user_id` из токена
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO game_results (user_id, score) VALUES (%s, %s)", (user_id, score))
+    mysql.connection.commit()
+    cur.close()
 
-# Сохранение результатов Galaga
+    return jsonify({'status': 'success', 'message': 'Score saved successfully.'})
+
+
 @app.route('/save_galaga_result', methods=['POST'])
 def save_galaga_result():
-    if 'username' in session:
-        data = request.get_json()
-        score = data.get('score', 0)
+    user = get_current_user()  # Проверяем токен и получаем данные пользователя
+    if not user:  # Если пользователь не авторизован
+        return jsonify({'status': 'error', 'message': 'Not logged in.'}), 403
 
-        # Получить user_id из сессии
-        user_id = session['user_id']
-        cur = mysql.connection.cursor()
-        cur.execute("INSERT INTO galaga_results (user_id, score) VALUES (%s, %s)", (user_id, score))
-        mysql.connection.commit()
-        cur.close()
+    data = request.get_json()
+    score = data.get('score', 0)
 
-        return jsonify({'status': 'success', 'message': 'Galaga score saved successfully.'})
-    return jsonify({'status': 'error', 'message': 'Not logged in.'}), 403
+    user_id = user['user_id']  # Получаем `user_id` из токена
+    cur = mysql.connection.cursor()
+    cur.execute("INSERT INTO galaga_results (user_id, score) VALUES (%s, %s)", (user_id, score))
+    mysql.connection.commit()
+    cur.close()
+
+    return jsonify({'status': 'success', 'message': 'Galaga score saved successfully.'})
+
 
 
 @app.route('/cuenta')
@@ -642,8 +663,12 @@ def galaga():
 
 @app.route('/quiz_all_results', methods=['GET', 'POST'])
 def quiz_all_results():
-    if 'username' not in session:
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
+
+    username = user['username']
 
     cur = mysql.connection.cursor()
 
@@ -705,8 +730,12 @@ def quiz_all_results():
 
 @app.route('/quiz_all_results_summary')
 def quiz_all_results_summary():
-    if 'username' not in session:
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
+
+    username = user['username']
 
     # Извлечение общего количества вопросов и правильных ответов каждого пользователя
     cur = mysql.connection.cursor()
@@ -736,10 +765,12 @@ def download_file(filename):
 # Страница с результатами квиза
 @app.route('/quiz_results')
 def quiz_results():
-    if 'username' not in session:
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
 
-    username = session['username']
+    username = user['username']
 
     # Получаем user_id из базы данных
     cur = mysql.connection.cursor()
@@ -769,12 +800,14 @@ def quiz_results():
 
 
 
-# Выход из аккаунта
 @app.route('/logout')
 def logout():
-    session.clear()
+    session.clear()  # Очистка сессии (на случай её использования)
+    response = redirect(url_for('login'))
+    response.delete_cookie('auth_token')  # Удаление токена из куки
     flash('Вы вышли из системы', 'success')
-    return redirect(url_for('login'))
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=80)

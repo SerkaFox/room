@@ -14,17 +14,17 @@
     </div>
     <div class="chat-actions">
         <span class="chat-timestamp">{{ message[4] }}</span>
-                {% if session['username'] == message[1] %}
-                <button class="icon-button edit-button" data-id="{{ message[0] }}">
-                    <i class="fas fa-pencil-alt">✏️</i>
-                </button>
-                <button class="icon-button delete-button" data-id="{{ message[0] }}">
-                    <i class="fas fa-trash">🗑️</i>
-                </button>
+			{% if current_user == message[1] %}
+				<button class="icon-button edit-button" data-id="{{ message[0] }}">
+					<i class="fas fa-pencil-alt">✏️</i>
+				</button>
+				<button class="icon-button delete-button" data-id="{{ message[0] }}">
+					<i class="fas fa-trash">🗑️</i>
+				</button>
                 {% endif %}
     </div>
             <!-- Форма редактирования -->
-            {% if session['username'] == message[1] %}
+            {% if current_user == message[1] %}
             <form method="POST" action="{{ url_for('edit_message') }}" class="edit-form" data-id="{{ message[0] }}" style="display: none;">
                 <textarea name="updated_message">{{ message[2] }}</textarea>
                 <input type="hidden" name="message_id" value="{{ message[0] }}">

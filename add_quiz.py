@@ -93,7 +93,7 @@ def insert_questions_into_db(questions):
 
 if __name__ == '__main__':
     # Укажите путь к вашему TXT-файлу
-    file_path = 'QUIZ.txt'
+    file_path = 'QUIZ10.txt'
 
     try:
         # Извлечение вопросов из файла
