@@ -656,6 +656,25 @@ def quiz():
         random_incorrect_gif=random.choice(incorrect_gifs),
     )
 
+@app.route('/reset_quiz', methods=['POST'])
+def reset_quiz():
+    user = get_current_user()
+    if not user:
+        flash('Necesitas iniciar sesión primero.', 'warning')
+        return redirect('/login')
+
+    username = user['username']
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT id FROM users WHERE username = %s", [username])
+    user = cur.fetchone()
+    user_id = user[0]
+
+    # Eliminar las respuestas del usuario
+    cur.execute("DELETE FROM user_answers WHERE user_id = %s", [user_id])
+    mysql.connection.commit()
+
+    flash('Tus respuestas han sido reseteadas. Puedes comenzar de nuevo.', 'success')
+    return redirect(url_for('quiz'))  # Redirigir al inicio del quiz
 
 @app.route('/galaga')
 def galaga():

@@ -11,6 +11,7 @@
             color: #fff;
             text-align: center;
             padding: 2rem;
+            position: relative;
         }
 
         h1 {
@@ -92,6 +93,54 @@
             color: #f44336;
             margin-top: 1rem;
         }
+
+        /* Отключение выделения текста */
+        .protected-text {
+            user-select: none;
+        }
+
+        /* Стили для кнопки сброса и информации о сбросе */
+        .reset-button {
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .reset-button:hover {
+            background-color: #e53935;
+        }
+
+        .reset-info {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: #f44336;
+            font-size: 1rem;
+        }
+
+        /* Стили для кнопки возвращения */
+        .return-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .return-link:hover {
+            background-color: #0056b3;
+        }
     </style>
     <script>
         function validateForm(event) {
@@ -111,16 +160,51 @@
             }
         }
     </script>
+    <script>
+        // Блокируем копирование и выделение текста для вопросов
+        document.addEventListener('DOMContentLoaded', () => {
+            const protectedElements = document.querySelectorAll('.protected-text');
+
+            protectedElements.forEach((element) => {
+                // Отключаем выделение текста
+                element.addEventListener('selectstart', (e) => e.preventDefault());
+
+                // Отключаем контекстное меню
+                element.addEventListener('contextmenu', (e) => e.preventDefault());
+
+                // Отключаем копирование
+                element.addEventListener('copy', (e) => {
+                    e.preventDefault();
+                    alert('No está permitido copiar las preguntas. ¡Por favor, escríbelo a mano!');
+                });
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>🎮 Quiz 🎮</h1>
+    
+    <!-- Кнопка для сброса ответов -->
+    <form method="POST" action="{{ url_for('reset_quiz') }}">
+        <button type="submit" class="reset-button">Resetear respuestas</button>
+    </form>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
 
     {% if question %}
-        <h2>Pregunta {{ question_number }}</h2>
+        <h2 class="protected-text">Pregunta {{ question_number }}</h2>
         <form method="POST" onsubmit="validateForm(event)">
             <input type="hidden" name="question_id" value="{{ question[0] }}">
-            <p>{{ question[1] }}</p>
-            <fieldset>
+            <p class="protected-text">{{ question[1] }}</p>
+            <fieldset class="protected-text">
                 <label> A: <input type="radio" name="option" value="A">{{ question[2] }}</label><br>
                 <label> B: <input type="radio" name="option" value="B">{{ question[3] }}</label><br>
                 <label> C: <input type="radio" name="option" value="C">{{ question[4] }}</label><br>
@@ -149,5 +233,8 @@
         </div>
         <a class="next-button" href="{{ url_for('quiz') }}">Siguiente pregunta</a>
     {% endif %}
+
+    <!-- Кнопка возвращения на страницу профиля -->
+    <a href="/cuenta" class="return-link">Volver</a>
 </body>
 </html>
