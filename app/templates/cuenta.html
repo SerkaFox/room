@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cuenta de Alumno</title>
+	    <script type="text/javascript" src="/static/galaga/Scripts/background.js"></script>
+    <script type="text/javascript" src="/static/galaga/Scripts/script.js"></script>
+    <style>
+        @font-face {
+            font-family: 'BD_CartoonShoutRegular';
+            src: url("{{ url_for('static', filename='fonts/BD_Cartoon_Shout-webfont.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            display: flex;
+            flex-wrap: wrap;
+            font-family: 'BD_CartoonShoutRegular', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            width: 30%;
+            padding: 20px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            color: #FFD700;
+            font-family: 'BD_CartoonShoutRegular';
+        }
+
+        .sidebar table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .sidebar th, .sidebar td {
+            border: 1px solid #555;
+            text-align: center;
+            padding: 8px;
+            font-family: 'BD_CartoonShoutRegular';
+        }
+
+        .sidebar th {
+            background-color: #444;
+            color: #FFD700;
+        }
+
+        .game-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #pacman {
+            height: 450px;
+            width: 342px;
+            margin: 20px auto;
+        }
+
+        h1 {
+            font-family: 'BD_CartoonShoutRegular';
+            text-align: center;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+
+        .menu-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .menu-button, .quiz-button, .switch-game-button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'BD_CartoonShoutRegular';
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-button:hover, .quiz-button:hover, .switch-game-button:hover {
+            background-color: #0056b3;
+        }
+
+        .quiz-button {
+            background-color: #ffeb3b;
+            color: #000;
+        }
+
+        .quiz-button:hover {
+            background-color: #ffc107;
+        }
+
+        .menu-content {
+            display: none;
+            position: absolute;
+            top: 100px;
+            right: 0;
+            background-color: #333;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .menu-content.active {
+            display: block;
+        }
+
+        .menu-content a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 14px;
+            font-family: 'BD_CartoonShoutRegular';
+            transition: background-color 0.3s ease;
+        }
+
+        .menu-content a:hover {
+            background-color: #444;
+        }
+		.game-frame {
+    width: fit-content;
+    height: fit-content;
+    padding: 20px;
+    border: 5px solid #FFD700; /* Золотая рамка */
+    border-radius: 15px;
+    background: linear-gradient(145deg, #222, #444); /* Фоновый градиент */
+    box-shadow: 0px 0px 20px 5px rgba(255, 215, 0, 0.6); /* Подсветка */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto; /* Центрирование */
+}
+
+
+#pacman {
+    background: #000; /* Чёрный фон для канваса Pacman */
+    height: 450px;
+    width: 342px;
+    margin: 0;
+}
+
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+
+            .game-container {
+                width: 100%;
+                order: 1;
+            }
+
+
+
+
+            .menu-container {
+                top: 10px;
+                right: 10px;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="sidebar">
+    <h2>Resultados</h2>
+	    <div>
+        
+    </div>
+    <table id="results-table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Puntos</th>
+                <th>Fecha</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if pacman_results %}
+                {% for result in pacman_results %}
+                <tr class="pacman-result" {% if initial_game != 'pacman' %}style="display: none;"{% endif %}>
+                    <td>{{ result[0] }}</td>
+                    <td>{{ result[1] }}</td>
+                    <td>{{ result[2] }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+            {% if galaga_results %}
+                {% for result in galaga_results %}
+                <tr class="galaga-result" {% if initial_game != 'galaga' %}style="display: none;"{% endif %}>
+                    <td>{{ result[0] }}</td>
+                    <td>{{ result[1] }}</td>
+                    <td>{{ result[2] }}</td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<div class="game-container">
+    <h1 id="game-title">Pacman</h1>
+    <div class="game-frame" id="game-frame">
+        <div id="game-content">
+            <div id="pacman"></div>
+        </div>
+    </div>
+</div>
+
+    <!-- Меню -->
+    <div class="menu-container">
+        <a href="/quiz" class="quiz-button">💡 ¡Haz el Quiz!</a>
+		<a href="/chat" class="quiz-button">😀 Chat</a>
+        <button class="menu-button" onclick="toggleMenu()">📋 Opciones</button>
+        <div class="menu-content" id="menuContent">
+            <a href="/quiz_results">📊 Tus Resultados</a>
+            <a href="/quiz_all_results">🌍 Resultados Globales</a>
+            <a href="/quiz_all_results_summary">📈 Resumen Total</a>
+            <a href="/sql_console">📟 SQL Console</a>
+
+			<a href="/download/app.exe" class="download-link">app.exe</a>
+			            <a href="http:\\localhost">Tu servedor</a>
+						<a href="/logout">🚪 Salir</a>
+
+        </div>
+        
+        <button class="switch-game-button" id="switch-game-button" onclick="switchGame()">🚀 Juega Galaga</button>
+		<button class="switch-game-button" onclick="showResults('combined')">Total Score</button>
+		
+    </div>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('menuContent');
+            menu.classList.toggle('active');
+        }
+    </script>
+
+    <script src="{{ url_for('static', filename='js/modernizr-1.5.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/pacman.js') }}"></script>
+    <script>
+        // Функция для получения параметров из URL
+        function getGameFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('game') || 'pacman'; // По умолчанию Pacman
+        }
+
+function showResults(game) {
+    const pacmanRows = document.querySelectorAll('.pacman-result');
+    const galagaRows = document.querySelectorAll('.galaga-result');
+    const resultsTable = document.querySelector('#results-table tbody');
+
+    if (game === 'pacman') {
+        pacmanRows.forEach(row => row.style.display = 'table-row');
+        galagaRows.forEach(row => row.style.display = 'none');
+    } else if (game === 'galaga') {
+        pacmanRows.forEach(row => row.style.display = 'none');
+        galagaRows.forEach(row => row.style.display = 'table-row');
+    } else if (game === 'combined') {
+        // Очистить таблицу
+        resultsTable.innerHTML = '';
+
+        // Собирать данные Pacman и Galaga для суммирования
+        const combinedResults = {};
+        pacmanRows.forEach(row => {
+            const name = row.cells[0].innerText;
+            const score = parseInt(row.cells[1].innerText);
+            const date = row.cells[2].innerText;
+
+            if (!combinedResults[name]) {
+                combinedResults[name] = { score: 0, date: date };
+            }
+            combinedResults[name].score += score;
+        });
+
+        galagaRows.forEach(row => {
+            const name = row.cells[0].innerText;
+            const score = parseInt(row.cells[1].innerText);
+            const date = row.cells[2].innerText;
+
+            if (!combinedResults[name]) {
+                combinedResults[name] = { score: 0, date: date };
+            }
+            combinedResults[name].score += score;
+        });
+
+        // Добавить объединенные результаты в таблицу
+        Object.entries(combinedResults).forEach(([name, data]) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${name}</td>
+                <td>${data.score}</td>
+                <td>${data.date}</td>
+            `;
+            resultsTable.appendChild(row);
+        });
+    }
+}
+
+        // Функция для установки игры
+        function loadGame(game) {
+            const gameContent = document.getElementById('game-content');
+            const gameTitle = document.getElementById('game-title');
+            const switchButton = document.getElementById('switch-game-button');
+
+            if (game === 'pacman') {
+                gameTitle.textContent = 'Pacman';
+                gameContent.innerHTML = `
+                    <div id="pacman"></div>
+                `;
+                switchButton.textContent = 'Galaga';
+				showResults('pacman');
+                // Инициализация Pacman
+                const el = document.getElementById('pacman');
+                if (Modernizr.canvas && Modernizr.localstorage && 
+                    Modernizr.audio && (Modernizr.audio.ogg || Modernizr.audio.mp3)) {
+                    window.setTimeout(function () { PACMAN.init(el, "/static/"); }, 0);
+                } else { 
+                    el.innerHTML = "Lo sentimos, necesitas un navegador moderno<br /><small>" +
+                        "(firefox 3.6+, Chrome 4+, Opera 10+ y Safari 4+)</small>";
+                }
+            } else if (game === 'galaga') {
+                gameTitle.textContent = 'Galaga';
+                gameContent.innerHTML = `
+                    <iframe src="/galaga" width="500" height="400" frameborder="0"></iframe>
+					
+                `
+				;
+                switchButton.textContent = 'Pacman';
+				showResults('galaga');
+            } else if (game === 'combined') {
+            pacmanRows.forEach(row => row.style.display = 'table-row');
+            galagaRows.forEach(row => row.style.display = 'table-row');
+        }
+        }
+
+        // Функция для переключения игры
+        function switchGame() {
+            const currentGame = getGameFromURL();
+            const newGame = currentGame === 'pacman' ? 'galaga' : 'pacman';
+            window.location.search = `?game=${newGame}`; // Обновляем URL и перезагружаем страницу
+        }
+
+        // Устанавливаем игру из параметра URL
+        const initialGame = getGameFromURL();
+        loadGame(initialGame);
+    </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cuenta de Alumno BD SQL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #000;
+            color: #ffeb3b;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            position: relative;
+            flex-direction: column;
+        }
+
+		h1 {
+			color: #ffeb3b;
+			margin: 0;  /* Убираем отступы, чтобы заголовок занимал всю ширину */
+			text-shadow: 2px 2px #ff0000;
+			font-size: 1.5rem;  /* Размер шрифта */
+			position: fixed;  /* Закрепляет элемент на экране */
+			top: 0;            /* Заголовок будет всегда вверху */
+			left: 0;           /* Начинается с левого края */
+			width: 100%;       /* Занимает всю ширину экрана */
+			text-align: center; /* Текст будет по центру */
+			padding: 10px 0;   /* Добавим небольшой отступ сверху и снизу для улучшения внешнего вида */
+			z-index: 10;       /* Гарантирует, что заголовок будет поверх других элементов */
+		}
+
+
+
+		.flash {
+			padding: 10px 20px; /* Добавляем горизонтальный отступ */
+			margin: 10px 0;
+			border-radius: 5px;
+			font-weight: bold;
+			text-align: center;
+			position: fixed;
+			bottom: 10%; /* Центрируем по вертикали */
+			left: 10%; /* Центрируем по горизонтали */
+			transform: translateX(-50%); /* Двигаем влево на половину его ширины */
+			max-width: 100%; /* Ограничиваем ширину на 90% от экрана */
+			width: auto; /* Автоматическая подгонка ширины */
+
+			box-sizing: border-box; /* Включает padding в расчет ширины */
+			animation: pulse 1s ease-out forwards; /* Пульсация с постепенным завершением */
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: translateX(-50%) scale(1);
+			}
+			50% {
+				transform: translateX(-50%) scale(11); /* Увеличиваем элемент */
+			}
+			100% {
+				transform: translateX(-50%) scale(1); /* Возвращаемся к исходному размеру */
+			}
+		}
+
+		.flash.success {
+			background-color: #4caf50;
+			color: white;
+		}
+
+		.flash.danger {
+			background-color: #f44336;
+			color: white;
+		}
+
+
+
+
+
+        .form-container {
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px 30px;
+            box-shadow: 0 4px 15px rgba(255, 235, 59, 0.4);
+            width: 300px;
+            margin-top: 20px;
+            z-index: 1;
+            position: relative;
+            display: none;
+        }
+
+        .form-container.active {
+            display: block;
+        }
+
+        p {
+            margin: 5px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 2px solid #ffeb3b;
+            border-radius: 5px;
+            box-sizing: border-box;
+            background-color: #222;
+            color: #fff;
+        }
+
+        input[type="submit"], .back-button {
+            background-color: #ff5722;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 50%;
+            font-size: 16px;
+            margin-bottom: 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            transform: scale(1);
+        }
+
+        input[type="submit"]:hover, .back-button:hover {
+            background-color: #e64a19;
+            transform: scale(1.05);
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: flex-end; /* Размещаем кнопки по правому краю */
+            width: 30%;
+            position: absolute;
+            top: 10%; /* Сдвигаем кнопки вверх */
+            right: 20px;
+        }
+
+        .button-container button {
+            margin-left: 10px; /* Отступ между кнопками */
+        }
+
+        .gif-container {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+
+        .gif-left {
+            left: 0;
+        }
+
+        .gif-right {
+            right: 0;
+        }
+
+        .gif-container img {
+            border: 3px solid #ffeb3b;
+            border-radius: 10px;
+            animation: pulse 2s infinite;
+            width: 250px;
+            margin: 20px;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+		footer {
+			position: fixed;   /* Закрепляет элемент внизу */
+			bottom: 0;         /* Прикрепляет к нижнему краю экрана */
+			width: 100%;       /* Ширина на всю страницу */
+			font-size: 16px;
+			color: #FFF;
+			background-color: #000;  /* Фон для читаемости текста */
+			text-align: center;      /* Выравнивание текста по центру */
+			padding: 10px 0;         /* Отступы сверху и снизу для улучшения внешнего вида */
+			z-index: 10;             /* Обеспечивает, чтобы футер был поверх других элементов */
+		}
+
+		footer a {
+			color: #FFD700;
+			text-decoration: none;
+		}
+
+		footer a:hover {
+			color: #FF0000;
+		}
+
+    </style>
+</head>
+<body>
+    <!-- Звук при нажатии -->
+    <audio id="button-sound" src="/static/sounds/button_click.mp3" preload="auto"></audio>
+
+    <!-- GIF слева и справа -->
+    <div class="gif-container gif-left">
+        <img src="https://media.giphy.com/media/uLFLLXMajtNIc/giphy.gif" alt="Pac-Man GIF">
+    </div>
+    <div class="gif-container gif-right">
+        <img src="https://media.giphy.com/media/3o85xsdxJti6JQmf1m/giphy.gif?cid=790b7611rx2bf7y1xqchwqi4ucg1le9cj3nzrq7v8uimadtc&ep=v1_gifs_search&rid=giphy.gif&ct=g" alt="Pac-Man GIF">
+    </div>
+
+    <h1>🎮 ¡Bienvenido a cuenta de Alumno BD SQL! 🎮</h1>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Навигация кнопок -->
+    <div class="button-container">
+        <button class="back-button" onclick="showForm('login')">Iniciar Sesión</button>
+        <button class="back-button" onclick="showForm('register')">Registrarse</button>
+        <button class="back-button" onclick="showForm('resetProfile')">Restablecer Perfil</button>
+    </div>
+
+    <!-- Форма Логина -->
+    <div class="form-container" id="login-form">
+        <form method="POST" action="/login">
+            <p>
+                <label for="username">Nombre de Usuario:</label>
+                <input type="text" id="username" name="username" required>
+            </p>
+            <p>
+                <label for="password">Clave:</label>
+                <input type="password" id="password" name="password" required>
+            </p>
+            <p>
+                <input type="submit" value="Entrar">
+            </p>
+        </form>
+    </div>
+
+    <!-- Форма Регистрации -->
+    <div class="form-container" id="register-form">
+        <form method="POST" action="/register">
+            <p>
+                <label for="username-register">Nombre de usuario:</label>
+                <input type="text" id="username-register" name="username" required>
+            </p>
+            <p>
+                <label for="email-register">Correo Electrónico:</label>
+                <input type="email" id="email-register" name="email" required>
+            </p>
+            <p>
+                <label for="password-register">Clave:</label>
+                <input type="password" id="password-register" name="password" required>
+            </p>
+            <p>
+                <label for="confirm-register">Confirmar Clave:</label>
+                <input type="password" id="confirm-register" name="confirm" required>
+            </p>
+            <p>
+                <input type="submit" value="Registrar">
+            </p>
+        </form>
+    </div>
+
+    <!-- Форма восстановления пароля -->
+    <div class="form-container" id="resetProfile-form">
+        <form method="POST" action="/reset_profile">
+            <p>
+                <label for="email-reset">Correo Electrónico:</label>
+                <input type="email" id="email-reset" name="email" placeholder="Introduce tu correo electrónico" required>
+            </p>
+            <p>
+                <label for="name-reset">Nuevo Nombre de Usuario (opcional):</label>
+                <input type="text" id="name-reset" name="name" placeholder="Introduce tu nuevo nombre de usuario">
+            </p>
+            <p>
+                <label for="password-reset">Nueva Contraseña (opcional):</label>
+                <input type="password" id="password-reset" name="password" placeholder="Introduce tu nueva contraseña">
+            </p>
+            <p>
+                <input type="submit" value="Actualizar Perfil">
+            </p>
+        </form>
+    </div>
+
+    <footer>
+        <p>Desarrollado con ❤️ por el equipo de Pac-Man. </p>
+    </footer>
+
+    <script>
+        function showForm(formId) {
+            // Скрыть все формы
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.remove('active');
+            document.getElementById('resetProfile-form').classList.remove('active');
+            
+            // Показать выбранную форму
+            document.getElementById(formId + '-form').classList.add('active');
+        }
+
+        // Устанавливаем форму по умолчанию
+        showForm('login');
+    </script>
+</body>
+</html>

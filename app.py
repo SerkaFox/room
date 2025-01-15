@@ -200,12 +200,54 @@ class LoginForm(Form):
     username = StringField('Username', [validators.DataRequired()])
     password = PasswordField('Password', [validators.DataRequired()])
 
+
 @app.route('/')
 def index():
     user = get_current_user()
+    form = LoginForm(request.form)  # Создаем форму
     if user:  # Если пользователь авторизован
         return redirect(url_for('cuenta'))
-    return render_template('index.html')  # Главная страница для неавторизованных пользователей
+    return render_template('index.html', form=form)  # Передаем форму в шаблон
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        username = form.username.data
+        password_candidate = form.password.data
+
+        # Используем курсор для работы с MySQL
+        cur = mysql.connection.cursor()
+        result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
+
+        if result > 0:
+            data = cur.fetchone()
+            user_id = data[0]
+            password_hash = data[2]
+
+            if bcrypt.check_password_hash(password_hash, password_candidate):
+                # Генерация токена
+                token = jwt.encode({
+                    'user_id': user_id,
+                    'username': username,
+                    'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
+                }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
+
+                # Сохранение токена в куки
+                response = redirect(url_for('cuenta'))
+                response.set_cookie('auth_token', token, httponly=True, samesite='Lax')  # 'Lax' для страниц одного домена
+
+                flash('Вы успешно вошли!', 'success')
+                return response
+            else:
+                flash('Неправильный пароль', 'danger')
+        else:
+            flash('Пользователь не найден', 'danger')
+
+        cur.close()  # Закрываем курсор
+    return render_template('index.html', form=form)
+
 
     
     
@@ -399,20 +441,6 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', form=form)
     
-@app.before_request
-def refresh_auth_token():
-    user = get_current_user()
-    if user:
-        token = jwt.encode({
-            'user_id': user['user_id'],
-            'username': user['username'],
-            'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
-        }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
-
-        response = make_response()
-        response.set_cookie('auth_token', token, httponly=True, samesite='Lax')
-
-
 
 def refresh_token(user):
     token = jwt.encode({
@@ -421,50 +449,6 @@ def refresh_token(user):
         'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
     }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
     return token
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate():
-        username = form.username.data
-        password_candidate = form.password.data
-
-        # Проверка данных из базы
-        cur = mysql.connection.cursor()
-        result = cur.execute("SELECT * FROM users WHERE username = %s", [username])
-
-        if result > 0:
-            data = cur.fetchone()
-            user_id = data[0]
-            password_hash = data[2]
-
-            if bcrypt.check_password_hash(password_hash, password_candidate):
-                # Генерация токена
-                token = jwt.encode({
-                    'user_id': user_id,
-                    'username': username,
-                    'exp': datetime.now(timezone.utc) + app.config['JWT_EXPIRATION_DELTA']
-                }, app.config['JWT_SECRET_KEY'], algorithm='HS256')
-
-                # Сохранение токена в куки
-                response = redirect(url_for('cuenta'))
-                response.set_cookie(
-                    'auth_token',
-                    token,
-                    httponly=True,
-                    samesite='Lax'  # 'Lax' для страниц одного домена
-                )
-
-                flash('Вы успешно вошли!', 'success')
-                return response
-            else:
-                flash('Неправильный пароль', 'danger')
-        else:
-            flash('Пользователь не найден', 'danger')
-
-        cur.close()
-    return render_template('login.html', form=form)
 
 
 

@@ -1,0 +1,204 @@
+-- Crear base de datos y tabla viajeros
+CREATE DATABASE IF NOT EXISTS barik;
+USE barik;
+
+-- Crear tabla viajeros
+CREATE TABLE viajeros (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
+    apellido1 VARCHAR(50),
+    apellido2 VARCHAR(50),
+    importe FLOAT
+);
+
+-- Crear Trigger 1: Antes de insertar, validar importe
+DELIMITER $$
+CREATE TRIGGER trigger_actualizar_importe_before_insert
+BEFORE INSERT ON viajeros
+FOR EACH ROW
+BEGIN
+    IF NEW.importe < 0 THEN
+        SET NEW.importe = 0;
+    ELSEIF NEW.importe > 1000 THEN
+        SET NEW.importe = 1000;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Crear Trigger 2: Antes de actualizar, validar importe
+DELIMITER $$
+CREATE TRIGGER trigger_actualizar_importe_before_update
+BEFORE UPDATE ON viajeros
+FOR EACH ROW
+BEGIN
+    IF NEW.importe < 0 THEN
+        SET NEW.importe = 0;
+    ELSEIF NEW.importe > 1000 THEN
+        SET NEW.importe = 1000;
+    END IF;
+END$$
+DELIMITER ;
+
+-- Insertar datos para probar los triggers
+INSERT INTO viajeros (nombre, apellido1, apellido2, importe) VALUES ('Juan', 'Pérez', 'López', -50); -- Se ajusta a 0
+INSERT INTO viajeros (nombre, apellido1, apellido2, importe) VALUES ('Ana', 'Gómez', 'Martínez', 1500); -- Se ajusta a 1000
+INSERT INTO viajeros (nombre, apellido1, apellido2, importe) VALUES ('Luis', 'Sánchez', 'Hernández', 500); -- Permanece en 500
+
+-- Actualizar datos para probar los triggers
+UPDATE viajeros SET importe = -20 WHERE id = 1; -- Se ajusta a 0
+UPDATE viajeros SET importe = 2000 WHERE id = 2; -- Se ajusta a 1000
+UPDATE viajeros SET importe = 700 WHERE id = 3; -- Permanece en 700
+
+-- Crear función para contar viajeros
+DELIMITER $$
+CREATE FUNCTION total_viajeros()
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE total INT;
+    SELECT COUNT(*) INTO total FROM viajeros;
+    RETURN total;
+END$$
+DELIMITER ;
+
+-- Llamar a la función
+SELECT total_viajeros() AS "Total de Viajeros";
+
+-- Crear tabla para registrar cambios en importes
+CREATE TABLE cambios_importe (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_viajero INT,
+    importe_antiguo FLOAT,
+    fecha_hora DATETIME
+);
+
+-- Crear Trigger para registrar cambios en importes
+DELIMITER $$
+CREATE TRIGGER guardar_cambios_importe
+BEFORE UPDATE ON viajeros
+FOR EACH ROW
+BEGIN
+    INSERT INTO cambios_importe (id_viajero, importe_antiguo, fecha_hora)
+    VALUES (OLD.id, OLD.importe, NOW());
+END$$
+DELIMITER ;
+
+-- Crear Trigger para advertir sobre límites
+DELIMITER $$
+CREATE TRIGGER verificar_limites
+AFTER UPDATE ON viajeros
+FOR EACH ROW
+BEGIN
+    IF NEW.importe = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Saldo no disponible: importe es 0.';
+    ELSEIF NEW.importe = 1000 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Límite excedido: importe es 1000.';
+    END IF;
+END$$
+DELIMITER ;
+
+
+DROP TABLE IF EXISTS jugador;
+CREATE TABLE jugador (
+    id_jugador INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
+    apellido VARCHAR(50),
+    tiro_libre INT UNSIGNED,
+    tiro_campo INT UNSIGNED,
+    triple INT UNSIGNED,
+    puntos_totales INT UNSIGNED
+);
+
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS calcular_puntos;
+CREATE PROCEDURE calcular_puntos(
+    IN tiro_libre INT UNSIGNED,
+    IN tiro_campo INT UNSIGNED,
+    IN triple INT UNSIGNED,
+    OUT puntos_totales INT UNSIGNED
+)
+BEGIN
+    SET puntos_totales = tiro_libre + (2 * tiro_campo) + (3 * triple);
+END$$
+DELIMITER ;
+
+
+DROP TABLE IF EXISTS jugadores_nba;
+CREATE TABLE jugadores_nba (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50),
+    apellido VARCHAR(50)
+);
+
+INSERT INTO jugadores_nba (nombre, apellido) VALUES
+('Michael', 'Jordan'),
+('LeBron', 'James'),
+('Kobe', 'Bryant'),
+('Shaquille', 'O\'Neal'),
+('Tim', 'Duncan'),
+('Stephen', 'Curry'),
+('Kevin', 'Durant'),
+('Magic', 'Johnson'),
+('Larry', 'Bird'),
+('Wilt', 'Chamberlain');
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS insertar_jugadores_random;
+CREATE PROCEDURE insertar_jugadores_random()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    DECLARE total_puntos INT UNSIGNED;
+    DECLARE random_nombre VARCHAR(50);
+    DECLARE random_apellido VARCHAR(50);
+    DECLARE balance FLOAT;
+    DECLARE tiro_libre INT UNSIGNED;
+    DECLARE tiro_campo INT UNSIGNED;
+    DECLARE triple INT UNSIGNED;
+
+    -- Очищаем таблицу jugador
+    TRUNCATE TABLE jugador;
+
+    -- Цикл для вставки 5 случайных игроков
+    WHILE i <= 5 DO
+        -- Выбираем случайного игрока без повторений
+		SELECT nombre, apellido INTO random_nombre, random_apellido
+		FROM jugadores_nba
+		WHERE CONCAT(nombre, ' ', apellido) NOT IN (SELECT CONCAT(nombre, ' ', apellido) FROM jugador)
+		ORDER BY RAND()
+		LIMIT 1;
+
+        -- Генерируем случайные значения для бросков
+        SET tiro_libre = FLOOR(1 + (RAND() * 10));  -- От 1 до 10 штрафных бросков
+        SET tiro_campo = FLOOR(5 + (RAND() * 20));  -- От 5 до 25 бросков с поля
+        SET triple = FLOOR(0 + (RAND() * 10));      -- От 0 до 10 трёхочковых
+
+        -- Вызываем процедуру calcular_puntos для расчёта общих очков
+        CALL calcular_puntos(tiro_libre, tiro_campo, triple, total_puntos);
+
+        -- Рассчитываем баланс в зависимости от общего количества очков
+        IF total_puntos < 50 THEN
+            SET balance = 100.0;
+        ELSEIF total_puntos BETWEEN 50 AND 100 THEN
+            SET balance = 500.0;
+        ELSE
+            SET balance = 1000.0;
+        END IF;
+
+        -- Вставляем данные в таблицу jugador
+        INSERT INTO jugador (nombre, apellido, tiro_libre, tiro_campo, triple, puntos_totales)
+        VALUES (random_nombre, random_apellido, tiro_libre, tiro_campo, triple, total_puntos);
+
+        -- Привязываем игрока к таблице барик
+        INSERT INTO viajeros (nombre, apellido1, apellido2, importe)
+        VALUES (random_nombre, random_apellido, '', balance)
+        ON DUPLICATE KEY UPDATE importe = VALUES(importe);
+
+        SET i = i + 1;
+    END WHILE;
+END$$
+DELIMITER ;
+
+-- Вызов процедуры
+SET SQL_SAFE_UPDATES = 0;
+CALL insertar_jugadores_random();
