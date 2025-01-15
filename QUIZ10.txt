@@ -1,363 +1,194 @@
-1. Escribe el código para crear una base de datos llamada "practica_mysql" y seleccionarla para su uso.
-A) DATABASE CREATE practica_mysql;
-B) CREATE DATABASE practica_mysql;
-C) NEW DATABASE practica_mysql; SELECT practica_mysql;
-D) CREATE DATABASE practica_mysql; USE practica_mysql;
+
+11. Elimine un símbolo matemático para obtener el resultado correcto
+public class ExamTrap11 {
+    public static void main(String[] args) {
+        int[] numeros = {4, 1, 7, 3};
+        int num = numeros[0];
+        for (int i = 1; i < numeros.length; i++) {
+            if (numeros[i] > num) {
+                num += numeros[i];
+            }
+        }
+        System.out.println("Número : " + num);
+    }
+}
+A) Número : 7
+B) Número : 4
+C) Número : 1
+D) Número : 3
+Correcta: A
+
+12. Añade un signo para obtener la respuesta correcta
+public class ExamTrap12 {
+    public static void main(String[] args) {
+        for (int i = 1; i <= 10; i++) {
+            if (i % 2 = 0) {
+                System.out.println(i);
+            }
+        }
+    }
+}
+A) 1 3 5 7 9
+B) 1 2 3 4 5 6 7 8 9 10
+C) 0 2 4 6 8 10
+D) 1 1 1 1 1 1 1 1 1
+Correcta: A
+
+13. El código perdió un dígito en la matriz, ¿cuál? Después de todo, el resultado del programa es "Promedio: 5"
+public class ExamTrap13 {
+    public static void main(String[] args) {
+        int[] numeros = {2, 4, 6};
+        int suma = 0;
+        for (int i = 0; i < numeros.length; i++) {
+            suma = suma + numeros[i];
+        }
+        int promedio = suma / numeros.length;
+        System.out.println("Promedio: " + promedio);
+    }
+}
+A) 3
+B) 5
+C) 8
+D) 10
+Correcta: C
+
+14. El código ha perdido el número y el símbolo, insértelos nuevamente para encontrar la respuesta correcta.
+public class ExamTrap14 {
+    public static void main(String[] args) {
+        for (int i = ; i = 1; i--) {
+            System.out.println(i);
+        }
+    }
+}
+D) 10 9 8 7 6 5 4 3 2 1
+B) 1 2 3 4 5 6 7 8 9 10
+C) 10 8 9 7 6 5 3 4 2 1
+A) 10 8 6 4 2 0
 Correcta: D
 
-2. Escribe el código para crear una tabla llamada "test" con las columnas "id" (entero, clave primaria) y "name" (cadena de 50 caracteres).
-A) CREATE test TABLE (id INT, name STRING(50));
-B) CREATE TABLE test (id INT PRIMARY KEY, name VARCHAR(50));
-C) ADD TABLE test (id INT, name VARCHAR(50));
-D) TABLE CREATE test (id PRIMARY KEY INT, name VARCHAR(50));
+15. El código perdió una línea entera, por lo que se obtiene Producto: 24 en la respuesta.
+public class ExamTrap15 {
+    public static void main(String[] args) {
+        int[] numeros = {2, 3, 4};
+        int producto = 1;
+        for (int i = 0; i < numeros.length; i++) {
+
+        }
+        System.out.println("Producto: " + producto);
+    }
+}
+A) producto = producto * numeros[i];
+B) producto = producto * numeros;
+C) producto *= numeros[l];
+D) producto = producto + numeros[i];
+Correcta: A
+
+16. La función tiene un error, ¿donde?
+public class ExamTrap16 {
+    public static void main(String[] args) {
+        int[] numeros = {1, 2, 3, 4};
+        boolean todosPositivos = true;
+        for (int i = 0; i < numeros.length; i++) {
+            if (!numeros[i]) {
+                todosPositivos = false;
+                break;
+            }
+        }
+        System.out.println("Todos positivos: " + todosPositivos);
+    }
+}
+A) bucle
+B) condición
+C) inicialización
+D) Nada
 Correcta: B
 
-3. Escribe el código para insertar datos en la tabla "test" con los valores (1, 'Hola') y (2, 'Mundo').
-A) INSERT ROW INTO test VALUES (1, 'Hola'), (2, 'Mundo');
-B) INSERT test VALUES (1, 'Hola'), (2, 'Mundo');
-C) INSERT INTO test (id, name) VALUES (1, 'Hola'), (2, 'Mundo');
-D) ADD INTO test (id, name) VALUES (1, 'Hola'), (2, 'Mundo');
-Correcta: C
+// 17. Contar cuántos números mayores a 5 hay en un arreglo.
+public class ExamTrap17 {
+    public static void main(String[] args) {
+        int[] numeros = {1, 6, 3, 8};
+        int contador = 0;
+        for (int i = 0; i < numeros.length; i++) {
+            if (numeros[i] > 5) {
+                contador = contador + 1;
+            }
+        }
+        System.out.println("Números mayores a 5: " + contador);
+    }
+}
+A) Números mayores a 5: 1
+B) Números mayores a 5: 3
+C) Números mayores a 5: 5
+D) Ninguna de las respuestas es correcta
+Correcta: D
 
-4. Escribe el código para contar el número de filas en la tabla "test".
-A) SELECT * FROM test COUNT;
-B) COUNT test;
-C) SELECT COUNT(*) FROM test;
-D) GET COUNT test;
-Correcta: C
-
-5. Después de ejecutar las consultas de las preguntas 1-4, ¿qué cambios específicos ocurrirán en la tabla "test"?
-A) La tabla "test" contiene dos filas: (1, 'Hola') y (2, 'Mundo').
-B) La tabla "test" contiene una fila duplicada debido a un error en la inserción.
-C) La tabla "test" no tiene filas debido a un error en el CREATE TABLE.
-D) La tabla "test" tiene filas, pero los valores no coinciden con los especificados.
-Correcta: A
-
-6. Escribe el código para crear una tabla llamada "empleados" con las columnas "id" (entero, clave primaria), "nombre" (cadena de 50 caracteres), "edad" (entero), y "fecha_contratacion" (fecha).
-A) CREATE empleados TABLE (id INT, nombre TEXT, edad INT, fecha DATE);
-B) CREATE TABLE empleados (id INT AUTO_INCREMENT PRIMARY KEY, nombre VARCHAR(50), edad INT, fecha_contratacion DATE);
-C) TABLE empleados (id INT, nombre VARCHAR(50), edad INT, fecha_contratacion DATETIME);
-D) CREATE TABLE empleados (id AUTO_INCREMENT PRIMARY KEY, nombre STRING(50), edad INT, fecha DATE);
+18. ¿Qué pasa? ¿Por qué no funciona el código?
+public class ExamTrap18 {
+    public static void main(String[] args) {
+        while (int i = 1; i <= 5; i++) {
+            System.out.println(i);
+        }
+    }
+}
+A) 1 2 3 4 5
+B) El ciclo contiene un error
+C) La condición contiene un error
+D) Porque no lo sé
 Correcta: B
 
-7. Escribe el código para insertar un empleado con los valores (1, 'Ana', 28, '2022-05-10').
-A) INSERT ROW INTO empleados (1, 'Ana', 28, '2022-05-10');
-B) ADD INTO empleados (id, nombre, edad, fecha_contratacion) VALUES (1, 'Ana', 28, '2022-05-10');
-C) INSERT empleados VALUES (1, 'Ana', 28, '2022-05-10');
-D) INSERT INTO empleados (id, nombre, edad, fecha_contratacion) VALUES (1, 'Ana', 28, '2022-05-10');
-Correcta: D
+19. Cual es correcta?
+public class ExamTrap19 {
+    public static void main(String[] args) {
+        int[] dias = {1, 3, 5, 7};
+        for (int dia : dias) {
+            switch (dia) {
+                case 1:
+                    System.out.println("Lunes");
+                    break;
+                case 2:
+                    System.out.println("Martes");
+                    break;
+                case 3:
+                    System.out.println("Miércoles");
+                    break;
+                case 4:
+                    System.out.println("Jueves");
+                    break;
+                case 5:
+                    System.out.println("Viernes");
+                    break;
+                default:
+                    System.out.println("Fin de semana");
+            }
+        }
+    }
+}
 
-8. Escribe el código para actualizar la edad del empleado con id = 1 a 30.
-A) UPDATE empleados SET edad = 30 WHERE id = 1;
-B) MODIFY empleados SET edad = 30 WHERE id = 1;
-C) UPDATE empleados edad 30 WHERE id = 1;
-D) CHANGE empleados edad = 30 WHERE id = 1;
+A) Lunes Miércoles Viernes Fin de semana
+B) Martes Jueves Viernes Lunes
+C) Lunes Miércoles Jueves Viernes Fin de semana
+D) Nada
 Correcta: A
 
-9. Escribe el código para contar el número de empleados con edad mayor a 25.
-A) COUNT empleados WHERE edad > 25;
-B) GET COUNT empleados WHERE edad > 25;
-C) SELECT * FROM empleados COUNT WHERE edad > 25;
-D) SELECT COUNT(*) FROM empleados WHERE edad > 25;
-Correcta: D
+20. Cual es correcta?
+public class ExamTrap20 {
+    public static void main(String[] args) {
+        int[] numeros = {3, -1, 0, 7, -5};
+        for (int numero : numeros) {
+            if (numero > 0) {
+                System.out.println(numero + " es Positivo");
+            } else if (numero < 0) {
+                System.out.println(numero + " es Negativo");
+            } else {
+                System.out.println(numero + " es Cero");
+            }
+        }
+    }
+}
 
-10. Después de ejecutar las consultas de las preguntas 6-9, ¿cómo se verían las filas en la tabla "empleados"?
-A) Una fila: (1, 'Ana', 30, '2022-05-10').
-B) Dos filas: (1, 'Ana', 28, '2022-05-10') y (1, 'Ana', 30, '2022-05-10').
-C) Ninguna fila, ya que ocurrió un error al insertar datos.
-D) Dos filas duplicadas debido a una omisión en la clave primaria.
+
+A) 3 es Positivo, -1 es Negativo, 0 es Cero, 7 es Positivo, -5 es Negativo
+B) Positivo es 3, Negativo es -1, Cero es 0, Positivo es 7, Negativo es -5
+C) 3 0 7
+D) 3 es Positivo, 1 es Negativo, 0 es Cero, 7 es Positivo, 5 es Negativo
 Correcta: A
-
-11. Escribe un procedimiento almacenado que devuelva todos los empleados mayores de 30 años.
-A) CREATE PROCEDURE GetEmpleadosMayores() BEGIN SELECT * FROM empleados WHERE edad > 30; END;
-B) CREATE PROCEDURE GetEmpleadosMayores AS SELECT empleados WHERE edad > 30;
-C) PROCEDURE GetEmpleadosMayores() BEGIN SELECT empleados WHERE edad > 30; END;
-D) NEW PROCEDURE GetEmpleadosMayores SELECT * FROM empleados WHERE edad > 30;
-Correcta: A
-
-12. Escribe el código para eliminar todos los empleados con edad menor a 25.
-A) DELETE empleados WHERE edad < 25;
-B) REMOVE empleados WHERE edad < 25;
-C) ERASE empleados WHERE edad < 25;
-D) DELETE FROM empleados WHERE edad < 25;
-Correcta: D
-
-13. Escribe el código para crear una tabla "logs" con las columnas "id" (entero, clave primaria), "operacion" (cadena de 50 caracteres), y "fecha" (fecha).
-A) CREATE TABLE logs (id INT PRIMARY KEY, operacion VARCHAR(50), fecha DATE);
-B) CREATE TABLE logs (id PRIMARY KEY, operacion VARCHAR(50), fecha DATETIME);
-C) TABLE logs (id INT, operacion STRING(50), fecha DATETIME);
-D) CREATE logs TABLE (id INT, operacion TEXT, fecha DATE);
-Correcta: A
-
-14. Después de ejecutar las consultas de las preguntas 11-14, ¿qué información específica tendrá la tabla "logs"?
-A) Una fila por cada empleado insertado, con su operación registrada como "Insert".
-B) Ninguna fila, ya que el trigger no fue ejecutado.
-C) Dos filas por cada empleado eliminado.
-D) Una fila con valores duplicados debido a un error en el trigger.
-Correcta: A
-
-15. Escribe el código para agregar una columna "salario" a la tabla "empleados" con un tipo de datos DECIMAL(10,2).
-A) MODIFY TABLE empleados ADD salario FLOAT;
-B) ADD COLUMN salario TO empleados DECIMAL(10,2);
-C) ALTER TABLE empleados ADD salario DECIMAL(10,2);
-D) UPDATE TABLE empleados ADD COLUMN salario DECIMAL(10,2);
-Correcta: C
-
-16. Escribe una consulta para devolver los nombres y salarios de los empleados cuyo salario sea mayor a 3000.
-A) SELECT salario FROM empleados WHERE nombre > 3000;
-B) SELECT nombre, salario FROM empleados;
-C) SELECT * FROM empleados WHERE salario > 3000;
-D) SELECT nombre, salario FROM empleados WHERE salario > 3000;
-Correcta: D
-
-17. Escribe el código para crear una tabla "departamentos" con las columnas "id" (entero, clave primaria, auto_increment) y "nombre" (cadena de 50 caracteres).
-A) TABLE departamentos (id INT, nombre VARCHAR(50));
-B) CREATE departamentos TABLE (id PRIMARY KEY, nombre STRING(50));
-C) CREATE TABLE departamentos (id INT AUTO_INCREMENT PRIMARY KEY, nombre VARCHAR(50));
-D) CREATE TABLE departamentos (id PRIMARY, nombre VARCHAR(50));
-Correcta: C
-
-18 ¿Cómo agregar una columna "departamento_id" en la tabla "empleados" y configurarla como clave foránea que haga referencia a "id" en la tabla "departamentos"?
-A) ALTER TABLE empleados ADD departamento_id INT; ALTER TABLE empleados ADD CONSTRAINT FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
-B) CREATE COLUMN departamento_id INT ON empleados; CREATE FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
-C) ADD COLUMN departamento_id INT TO empleados; ALTER TABLE empleados ADD FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
-D) ALTER TABLE empleados ADD departamento_id INT; ALTER TABLE empleados ADD FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
-Correcta: A
-
-19. Escribe una consulta para unir las tablas "empleados" y "departamentos" por una clave foránea "departamento_id" en "empleados".
-A) SELECT departamentos.nombre FROM empleados WHERE empleados.departamento_id = departamentos.id;
-B) SELECT * FROM empleados JOIN departamentos ON empleados.departamento_id = departamentos.id;
-C) SELECT * FROM empleados LEFT JOIN departamentos;
-D) JOIN empleados.departamento_id TO departamentos.id;
-Correcta: B
-
-20. ¿Qué valor fue devuelto en la consulta de la pregunta 17?
-A) Todos los empleados con salario mayor a 3000.
-B) Ningún resultado porque no hay empleados con salario > 3000.
-C) Error debido a problemas de sintaxis.
-D) Sólo los nombres de los empleados con salario > 3000.
-Correcta: A
-
-21. Escribe el código para eliminar la columna "salario" de la tabla "empleados".
-A) REMOVE salario FROM empleados;
-B) DELETE COLUMN salario FROM empleados;
-C) ALTER empleados DELETE COLUMN salario;
-D) ALTER TABLE empleados DROP COLUMN salario;
-Correcta: D
-
-21.1. Escribe el código para agregar la columna salario a la tabla empleados con el tipo de datos DECIMAL(10,2).
-A) ALTER TABLE empleados ADD salario FLOAT;
-B) ALTER TABLE empleados ADD salario DECIMAL(10,2);
-C) CREATE COLUMN salario DECIMAL(10,2) ON empleados;
-D) MODIFY TABLE empleados ADD COLUMN salario DECIMAL(10,2);
-Correcta: B
-
-22. Escribe una consulta para obtener el promedio de salario por departamento.
-A) SELECT AVG(salario) FROM empleados;
-B) SELECT departamentos.nombre, AVG(empleados.salario) FROM empleados JOIN departamentos ON empleados.departamento_id = departamentos.id GROUP BY departamentos.nombre;
-C) SELECT departamentos.nombre, empleados.salario FROM empleados JOIN departamentos;
-D) SELECT departamentos.nombre, AVG(salario) GROUP BY empleados.departamento_id;
-Correcta: B
-
-23. Escribe el código para agregar una restricción NOT NULL a la columna "nombre" en la tabla "departamentos".
-A) ALTER TABLE departamentos MODIFY nombre VARCHAR(50) NOT NULL;
-B) ALTER departamentos nombre SET NOT NULL;
-C) MODIFY TABLE departamentos COLUMN nombre NOT NULL;
-D) ALTER departamentos ADD CONSTRAINT nombre NOT NULL;
-Correcta: A
-
-24. Escribe el código para crear una vista "vista_empleados" que muestre los nombres y edades de todos los empleados.
-A) VIEW CREATE vista_empleados (nombre, edad) FROM empleados;
-B) CREATE VIEW empleados_vista SELECT nombre, edad;
-C) CREATE vista_empleados AS SELECT nombre, edad FROM empleados;
-D) CREATE VIEW vista_empleados AS SELECT nombre, edad FROM empleados;
-Correcta: D
-
-25. ¿Qué restricción se agregó en la pregunta 23 y cómo afectará esto a las inserciones futuras en "departamentos"?
-A) Se agregó NOT NULL en "nombre"; no se pueden insertar valores nulos en esta columna.
-B) Se eliminó NOT NULL de "nombre", permitiendo valores nulos.
-C) No se realizó ningún cambio en la tabla "departamentos".
-D) Las restricciones actuales no afectan las inserciones futuras.
-Correcta: A
-
-26. Escribe una consulta para eliminar todos los empleados cuyo salario sea menor a 1000.
-A) DELETE empleados WHERE salario < 1000;
-B) REMOVE empleados WHERE salario < 1000;
-C) DELETE FROM empleados WHERE salario < 1000;
-D) ERASE empleados WHERE salario < 1000;
-Correcta: C
-
-27. Escribe el código para agregar una clave foránea "departamento_id" en la tabla "empleados" que haga referencia a "id" en "departamentos".
-A) ADD CONSTRAINT departamento_id TO empleados REFERENCES departamentos;
-B) ALTER empleados ADD CONSTRAINT FOREIGN KEY departamento_id TO departamentos;
-C) ALTER TABLE empleados ADD FOREIGN KEY (departamento_id) REFERENCES departamentos(id);
-D) MODIFY TABLE empleados FOREIGN KEY departamento_id REFERENCES departamentos(id);
-Correcta: C
-
-28. Escribe una consulta para actualizar el salario de todos los empleados en 10%.
-A) MODIFY empleados SET salario = salario + (salario * 0.10);
-B) CHANGE empleados salario TO salario * 1.1;
-C) UPDATE empleados SET salario = salario * 1.10;
-D) UPDATE empleados.salary = empleados.salary * 1.1;
-Correcta: C
-
-29. Escribe el código para crear una tabla "proyectos" con las columnas "id" (entero, clave primaria), "nombre" (cadena de 50 caracteres) y "presupuesto" (decimal).
-A) CREATE TABLE proyectos (id INT PRIMARY KEY, nombre VARCHAR(50), presupuesto DECIMAL(10,2));
-B) CREATE proyectos TABLE (id PRIMARY KEY, nombre STRING(50), presupuesto DECIMAL(10,2));
-C) TABLE proyectos (id INT PRIMARY, nombre VARCHAR(50), presupuesto DECIMAL);
-D) CREATE TABLE proyectos (id PRIMARY, nombre VARCHAR(50), presupuesto FLOAT);
-Correcta: A
-
-30. ¿Qué restricción se agregó en la pregunta 27 y cómo afectará esto a las inserciones futuras en "empleados"?
-A) Se agregó una clave foránea en "departamento_id"; ahora todas las inserciones deben coincidir con "id" en "departamentos".
-B) No se agregó ninguna restricción en "empleados".
-C) Se eliminó la clave foránea de "departamento_id", permitiendo cualquier valor.
-D) Las restricciones actuales no afectan las inserciones futuras.
-Correcta: A
-
-31. Escribe una función que calcule el impuesto sobre el salario basado en un porcentaje dado. El porcentaje debe ser un argumento de la función.
-A) CREATE PROCEDURE calcular_impuesto(salario DECIMAL, porcentaje DECIMAL) RETURNS DECIMAL BEGIN RETURN salario * porcentaje; END;
-B) CREATE FUNCTION calcular_impuesto(salario FLOAT, porcentaje FLOAT) RETURNS FLOAT BEGIN RETURN salario / porcentaje; END;
-C) CREATE FUNCTION calcular_impuesto(salario DECIMAL, porcentaje DECIMAL) RETURNS DECIMAL DETERMINISTIC BEGIN RETURN salario * (porcentaje / 100); END;
-D) CREATE FUNCTION calcular_impuesto(salario DECIMAL, porcentaje DECIMAL) BEGIN RETURN salario * porcentaje; END;
-Correcta: C
-
-32. Escribe un procedimiento almacenado que aumente el salario de todos los empleados en un 5% si tienen más de 5 años en la empresa.
-A) CREATE PROCEDURE aumentar_salario() BEGIN UPDATE empleados SET salario = salario * 1.05 WHERE TIMESTAMPDIFF(YEAR, fecha_contratacion, CURDATE()) > 5; END;
-B) CREATE PROCEDURE aumentar_salario() BEGIN UPDATE empleados SET salario = salario + 5 WHERE experiencia > 5; END;
-C) CREATE PROCEDURE aumentar_salario() BEGIN UPDATE empleados WHERE experiencia > 5 SET salario = salario * 1.05; END;
-D) CREATE FUNCTION aumentar_salario() RETURNS VOID BEGIN UPDATE empleados SET salario = salario * 1.05 WHERE experiencia > 5; END;
-Correcta: A
-
-32.2. Escribe el código para crear una tabla "historial_salarios" que registre cambios de salario con claves foráneas y fechas.
-A) CREATE TABLE historial_salarios (id INT PRIMARY KEY, empleado_id INT, salario_antiguo DECIMAL(10,2), salario_nuevo DECIMAL(10,2), fecha DATETIME);
-B) CREATE historial_salarios (id INT AUTO_INCREMENT PRIMARY KEY, empleado_id INT, salario_antiguo DECIMAL(10,2), salario_nuevo DECIMAL(10,2), fecha DATE);
-C) CREATE TABLE historial_salarios (id INT AUTO_INCREMENT PRIMARY KEY, empleado_id INT, salario_antiguo DECIMAL(10,2), salario_nuevo DECIMAL(10,2), fecha DATETIME, FOREIGN KEY (empleado_id) REFERENCES empleados(id));
-D) CREATE historial_salarios TABLE (id INT PRIMARY KEY AUTO_INCREMENT, empleado_id INT, salario_antiguo DECIMAL, salario_nuevo DECIMAL, fecha DATETIME);
-Correcta: C
-
-33. Escribe un trigger que registre los cambios en el salario de un empleado en una tabla llamada "historial_salarios" después de cualquier actualización.
-A) CREATE TRIGGER actualizar_historial AFTER UPDATE ON empleados INSERT INTO historial_salarios (id, salario_antiguo, salario_nuevo, fecha) VALUES (OLD.id, NEW.salario, NOW());
-B) CREATE TRIGGER historial_update AFTER UPDATE empleados INSERT INTO historial_salarios (empleado_id, salario_antiguo, salario_nuevo, fecha) VALUES (OLD.id, OLD.salario, NEW.salario, CURRENT_DATE);
-C) CREATE TRIGGER actualizar_historial AFTER UPDATE ON empleados FOR EACH ROW INSERT INTO historial_salarios (empleado_id, salario_antiguo, salario_nuevo, fecha) VALUES (OLD.id, OLD.salario, NEW.salario, NOW());
-D) CREATE TRIGGER actualizar_historial AFTER INSERT empleados FOR EACH ROW INSERT historial_salarios (empleado_id, OLD.salario, NEW.salario);
-Correcta: C
-
-34. Escribe una consulta que use un ciclo en SQL para calcular el total de presupuestos en la tabla "proyectos".
-A) SET @total_presupuesto = 0; SELECT SUM(presupuesto) INTO @total_presupuesto FROM proyectos;
-B) DECLARE total_presupuesto FLOAT; BEGIN SELECT presupuesto FROM proyectos INTO total_presupuesto; END;
-C) DECLARE total_presupuesto DECIMAL(10,2); SET total_presupuesto = 0; WHILE (SELECT presupuesto FROM proyectos) LOOP SET total_presupuesto = total_presupuesto + presupuesto; END LOOP;
-D) BEGIN DECLARE total_presupuesto DECIMAL(10,2); SET total_presupuesto = 0; LOOP SELECT SUM(presupuesto) INTO total_presupuesto FROM proyectos; END;
-Correcta: A
-
-35. ¿Qué nombres de funciones o procedimientos se definieron en las preguntas 31-34?
-A) calcular_impuesto, aumentar_salario, actualizar_historial
-B) calcular_impuesto, aumentar_salario, total_presupuesto
-C) historial_update, calcular_impuesto, aumentar_salario
-D) calcular_impuesto, historial_salarios, total_presupuesto
-Correcta: A
-
-36. Escribe una función que devuelva el promedio de salarios de empleados que pertenecen a un departamento específico, recibiendo el ID del departamento como parámetro.
-A) CREATE FUNCTION promedio_salario_departamento(departamento INT) BEGIN RETURN (SELECT salario FROM empleados WHERE departamento = departamento); END;
-B) CREATE FUNCTION promedio_salario_departamento(departamento_id INT) RETURNS FLOAT BEGIN SELECT AVG(salario) INTO promedio FROM empleados WHERE departamento_id = departamento_id; END;
-C) CREATE FUNCTION promedio_salario_departamento(departamento_id INT) RETURNS DECIMAL READS SQL DATA BEGIN RETURN (SELECT AVG(salario) FROM empleados WHERE departamento_id = departamento_id); END;
-D) CREATE PROCEDURE promedio_salario_departamento(departamento_id INT) RETURNS DECIMAL BEGIN RETURN AVG(empleados.salario); END;
-Correcta: C
-
-37. Escribe un procedimiento que elimine todos los proyectos cuyo presupuesto sea menor al promedio de los presupuestos.
-A) CREATE PROCEDURE eliminar_proyectos() BEGIN DELETE FROM proyectos WHERE presupuesto < (SELECT AVG(presupuesto) FROM proyectos); END;
-B) CREATE TRIGGER eliminar_proyectos AFTER UPDATE ON proyectos FOR EACH ROW DELETE WHERE presupuesto < (SELECT AVG(presupuesto) FROM proyectos);
-C) CREATE FUNCTION eliminar_proyectos() RETURNS VOID BEGIN DELETE FROM proyectos WHERE presupuesto < AVG(presupuesto); END;
-D) CREATE PROCEDURE eliminar_proyectos() BEGIN DELETE proyectos WHERE presupuesto < (SELECT presupuesto FROM proyectos); END;
-Correcta: A
-
-38. Escribe un trigger que impida la inserción de empleados con un salario menor a 500.
-A) CREATE TRIGGER impedir_salarios BEFORE INSERT ON empleados SIGNAL SQLSTATE '45000' MESSAGE_TEXT = 'Salario demasiado bajo';
-B) CREATE TRIGGER impedir_salarios BEFORE INSERT empleados FOR EACH ROW WHERE NEW.salario < 500 ROLLBACK;
-C) CREATE TRIGGER impedir_salarios AFTER INSERT ON empleados REJECT SALARY < 500;
-D) CREATE TRIGGER impedir_salarios BEFORE INSERT ON empleados FOR EACH ROW IF NEW.salario < 500 THEN SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Salario demasiado bajo'; END IF;
-Correcta: D
-
-39. Escribe una consulta que use una condición CASE para clasificar empleados en categorías de salario: "Alto" (>3000), "Medio" (1000-3000), "Bajo" (<1000).
-A) SELECT nombre, salario CASE WHEN salario > 3000 THEN 'Alto' ELSE IF salario < 1000 THEN 'Bajo';
-B) SELECT nombre, CASE salario WHEN salario > 3000 THEN 'Alto' WHEN salario BETWEEN 1000 AND 3000 THEN 'Medio' ELSE 'Bajo' END FROM empleados;
-C) SELECT nombre, IF salario > 3000 THEN 'Alto' ELSE IF salario BETWEEN 1000 AND 3000 THEN 'Medio' ELSE 'Bajo' END FROM empleados;
-D) SELECT nombre, CASE WHEN salario > 3000 THEN 'Alto' WHEN salario BETWEEN 1000 AND 3000 THEN 'Medio' ELSE 'Bajo' END AS categoria FROM empleados;
-Correcta: D
-
-40. ¿Qué categorías de salario se definieron en la pregunta 39 y cuántos empleados podrían pertenecer a cada una?
-A) Categorías: "Alto", "Medio", "Bajo"; números según consulta adicional.
-B) Categorías: "Alto" y "Medio"; empleados distribuidos equitativamente.
-C) Categorías: Sólo "Medio"; empleados fuera de rango no clasificados.
-D) Categorías: "Medio" y "Bajo"; empleados altos no definidos.
-Correcta: A
-
-41. Inserta en la tabla "empleados" a un empleado llamado "Paco Picapiedra" con un salario de 3000 y fecha de contratación el 12 de diciembre de 2020. Parece que consiguió el trabajo gracias a su garrote de piedra.
-A) INSERT empleados (id, nombre, salario, fecha_contratacion) VALUES (5, 'Paco Picapiedra', 3000, '2020-12-12');
-B) INSERT INTO empleados (id, nombre, salario, fecha_contratacion) VALUES (5, 'Paco Picapiedra', 3000, '2020-12-12');
-C) ADD ROW empleados VALUES (5, 'Paco Picapiedra', 3000, '2020-12-12');
-D) INSERT ROW empleados (nombre, salario, fecha_contratacion) VALUES ('Paco Picapiedra', 3000, '2020-12-12');
-Correcta: B
-
-42. Inserta un registro en la tabla "departamentos" con el nombre "Cueva Creativa", donde todos los empleados llevan cascos con linternas.
-A) INSERT ROW INTO departamentos VALUES (NULL, 'Cueva Creativa');
-B) INSERT INTO departamentos (nombre) VALUES ('Cueva Creativa');
-C) INSERT INTO departamentos (id, nombre) VALUES (6, 'Cueva Creativa');
-D) ADD INTO departamentos (nombre) VALUES ('Cueva Creativa');
-Correcta: B
-
-43. Añade en la tabla "logs" un registro manual con id = 1, operación = 'Picoteo de datos' y fecha actual.
-A) INSERT INTO logs (id, operacion, fecha) VALUES (1, 'Picoteo de datos', NOW());
-B) ADD INTO logs VALUES (1, 'Picoteo de datos', CURDATE());
-C) INSERT logs (id, operacion, fecha) VALUES (1, 'Picoteo de datos', CURRENT_DATE);
-D) INSERT INTO logs (id, operacion, fecha) VALUES (1, 'Picoteo de datos', CURRENT_DATE);
-Correcta: D
-
-44. Actualiza el salario de "Paco Picapiedra" en la tabla "empleados" a 3500 porque le ascendieron a jefe de cantera.
-A) UPDATE empleados SET salario = 3500 WHERE nombre = 'Paco Picapiedra';
-B) MODIFY empleados SET salario = 3500 WHERE nombre = 'Paco Picapiedra';
-C) ALTER empleados UPDATE salario = 3500 WHERE nombre = 'Paco Picapiedra';
-D) CHANGE empleados SET salario = 3500 WHERE nombre = 'Paco Picapiedra';
-Correcta: A
-
-45. Basándote en las preguntas 41-44, ¿qué cambios específicos se habrán realizado en las tablas "empleados" y "logs"?
-A) Se agregó a "Paco Picapiedra" en "empleados" con salario actualizado y un registro en "logs" sobre la operación de picoteo.
-B) Sólo se actualizó el salario de "Paco Picapiedra".
-C) Se agregó un registro en "logs", pero no se realizaron cambios en "empleados".
-D) No se realizó ningún cambio debido a errores en las consultas.
-Correcta: A
-
-46. Inserta en la tabla "departamentos" un nuevo departamento llamado "Chistes y Memes", donde los empleados ríen más de lo que trabajan.
-A) INSERT INTO departamentos (id, nombre) VALUES (NULL, 'Chistes y Memes');
-B) INSERT INTO departamentos (nombre) VALUES ('Chistes y Memes');
-C) ADD departamentos VALUES ('Chistes y Memes');
-D) INSERT ROW INTO departamentos (id, nombre) VALUES (7, 'Chistes y Memes');
-Correcta: B
-
-47. Añade en la tabla "logs" un registro indicando la creación del departamento "Chistes y Memes" con fecha actual y un comentario: "La productividad baja, pero el ánimo sube".
-A) INSERT INTO logs (id, operacion, fecha) VALUES (2, 'Creación Chistes y Memes', NOW());
-B) INSERT ROW logs VALUES (2, 'Chistes y Memes creado', CURRENT_DATE);
-C) ADD logs (id, operacion, fecha) VALUES (2, 'Creación Chistes y Memes', CURDATE());
-D) INSERT INTO logs (id, operacion, fecha) VALUES (2, 'Creación Chistes y Memes', CURRENT_DATE);
-Correcta: D
-
-48. Escribe una consulta para contar el número total de empleados en la tabla "empleados" porque el jefe sospecha que algunos son fantasmas.
-A) SELECT COUNT(*) FROM empleados;
-B) SELECT empleados COUNT;
-C) COUNT empleados;
-D) SELECT * FROM empleados COUNT;
-Correcta: A
-
-49. Inserta en la tabla "empleados" un registro para "Juan Risueño" con un salario de 1800 y fecha de contratación "2023-01-10", contratado como el nuevo contador de carcajadas.
-A) INSERT empleados (id, nombre, salario, fecha_contratacion) VALUES (6, 'Juan Risueño', 1800, '2023-01-10');
-B) INSERT INTO empleados (id, nombre, salario, fecha_contratacion) VALUES (6, 'Juan Risueño', 1800, '2023-01-10');
-C) ADD ROW empleados VALUES (6, 'Juan Risueño', 1800, '2023-01-10');
-D) INSERT ROW INTO empleados (nombre, salario, fecha_contratacion) VALUES ('Juan Risueño', 1800, '2023-01-10');
-Correcta: B
-
-50. Basándote en las preguntas 46-49, ¿qué registros se habrán agregado en las tablas "empleados" y "logs"?
-A) "Chistes y Memes" en "departamentos" y un registro en "logs" sobre su creación.
-B) "Chistes y Memes" en "departamentos", "Juan Risueño" en "empleados" y un registro en "logs".
-C) "Juan Risueño" en "empleados" y ningún registro en "logs".
-D) Ninguno, porque las consultas no se ejecutaron correctamente.
-Correcta: B

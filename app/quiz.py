@@ -1,4 +1,4 @@
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import render_template, request, jsonify, redirect, url_for, flash, session
 from app import app, mysql
 import random
 from app.auth import get_current_user
@@ -21,6 +21,26 @@ def quiz():
     correct_option = None
     selected_option = None
     question_number = 1
+    result = None  # Переменная для хранения результата
+
+    # Проверка на наличие вопроса в сессии
+    if 'question_id' in session:
+        # Вопрос уже был выбран ранее, извлекаем его из сессии
+        question_id = session['question_id']
+        cur.execute("SELECT * FROM questions WHERE id = %s", [question_id])
+        question = cur.fetchone()
+    else:
+        # Если вопрос не был сохранен, выбираем новый случайный вопрос
+        cur.execute("""
+            SELECT * FROM questions
+            WHERE id NOT IN (SELECT question_id FROM user_answers WHERE user_id = %s)
+            ORDER BY RAND()
+            LIMIT 1
+        """, [user_id])
+        question = cur.fetchone()
+        # Сохраняем выбранный вопрос в сессии
+        if question:
+            session['question_id'] = question[0]
 
     # Списки GIF для правильных и неправильных ответов
     correct_gifs = [
@@ -60,34 +80,37 @@ def quiz():
         correct_option = cur.fetchone()[0]
         is_correct = (selected_option == correct_option)
 
+        # Сохраняем в переменную результат
+        result = {
+            'is_correct': is_correct,
+            'selected_option': selected_option,
+            'correct_option': correct_option
+        }
+
+        # Сохраняем ответ пользователя
         cur.execute("""
             INSERT INTO user_answers (user_id, question_id, selected_option, is_correct)
             VALUES (%s, %s, %s, %s)
         """, (user_id, question_id, selected_option, is_correct))
         mysql.connection.commit()
 
+        # Очистить вопрос в сессии после отправки ответа
+        session.pop('question_id', None)
+
     cur.execute("SELECT COUNT(*) FROM user_answers WHERE user_id = %s", [user_id])
     answered_count = cur.fetchone()[0]
     question_number = answered_count + 1
 
-    if not correct_option:
-        cur.execute("""
-            SELECT * FROM questions
-            WHERE id NOT IN (SELECT question_id FROM user_answers WHERE user_id = %s)
-            LIMIT 1
-        """, [user_id])
-        question = cur.fetchone()
-
     cur.close()
-    
-    if not question and not correct_option:
+
+    if not question and not result:
+        session.clear()
         return redirect(url_for('quiz_results'))
 
     return render_template(
         'quiz.html',
         question=question,
-        correct_option=correct_option,
-        selected_option=selected_option,
+        result=result,  # Передаем результат в шаблон
         question_number=question_number,
         random_correct_gif=random.choice(correct_gifs),
         random_incorrect_gif=random.choice(incorrect_gifs),
