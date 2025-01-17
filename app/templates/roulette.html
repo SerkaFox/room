@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Ruleta de la Suerte</title>
+    <style>
+        @font-face {
+            font-family: 'BD_CartoonShoutRegular';
+            src: url("{{ url_for('static', filename='fonts/BD_Cartoon_Shout-webfont.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'BD_CartoonShoutRegular', Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            justify-content: center;
+        }
+
+        h1 {
+            font-family: 'BD_CartoonShoutRegular';
+            color: #FFD700;
+            margin-bottom: 20px;
+        }
+
+        .content-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .spinner-container {
+            width: 300px;
+            height: 300px;
+            border: 5px solid #FFD700;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, #222, #444);
+            box-shadow: 0px 0px 20px 5px rgba(255, 215, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spinner {
+            position: relative;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            background: conic-gradient(#FFD700, #222, #FFD700);
+            animation: inner-spin 1s linear infinite;
+        }
+
+        .selected-name {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #00FFFF;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes inner-spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-family: 'BD_CartoonShoutRegular';
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        button#reset {
+            background-color: #28a745;
+        }
+
+        button#reset:hover {
+            background-color: #1e7e34;
+        }
+
+        ul {
+            width: 250px;
+            list-style: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            background-color: #333;
+            color: #FFD700;
+        }
+
+        ul li {
+            font-size: 18px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .spinner-container {
+                width: 200px;
+                height: 200px;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            ul li {
+                font-size: 16px;
+            }
+        }
+		.button {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .floating-button:hover {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            box-shadow: 0 0 20px rgba(0, 86, 179, 0.8);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Ruleta de la Suerte</h1>
+    <div class="content-container">
+        <div class="spinner-container">
+            <div id="spinner" class="spinner"></div>
+            <div id="selected-name" class="selected-name"></div>
+        </div>
+        <ul id="nameList"></ul>
+    </div>
+    <div class="buttons">
+        <button id="spin">Girar</button>
+        <button id="reset">Reiniciar</button>
+		    <a href="/cuenta" class="floating-button">Volver</a>
+
+    </div>
+
+    <script>
+        const spinner = document.getElementById('spinner');
+        const selectedNameElement = document.getElementById('selected-name');
+        const nameList = document.getElementById('nameList');
+        let intervalId;
+
+        function updateNameList(names) {
+            nameList.innerHTML = '';
+            names.forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                nameList.appendChild(li);
+            });
+        }
+
+        async function spin() {
+            try {
+                const response = await fetch('/roulette/spin', { method: 'POST' });
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    let names = [...data.remaining, data.name];
+                    let index = 0;
+
+                    intervalId = setInterval(() => {
+                        selectedNameElement.textContent = names[index];
+                        index = (index + 1) % names.length;
+                    }, 100);
+
+                    spinner.style.animation = 'spin 2s ease-in-out';
+
+                    setTimeout(() => {
+                        clearInterval(intervalId);
+                        selectedNameElement.textContent = data.name;
+                        updateNameList(data.remaining);
+                        spinner.style.animation = '';
+                    }, 2000);
+                }
+            } catch (err) {
+                console.error('Error al girar:', err);
+            }
+        }
+
+        async function reset() {
+            try {
+                const response = await fetch('/roulette/reset', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message);
+                updateNameList(data.names);
+                selectedNameElement.textContent = '';
+            } catch (err) {
+                console.error('Error al reiniciar:', err);
+            }
+        }
+
+        document.getElementById('spin').addEventListener('click', spin);
+        document.getElementById('reset').addEventListener('click', reset);
+
+        // Inicializar la lista con los nombres completos
+        updateNameList(["Juan Manuel", "Brayan Orlando", "Adriana Nicolle", "Santiago", "Orlando", "Consuelo", "Laila", "Jenifer Alexand", "Sergei", "Grethy Nelva", "Marwane"]);
+    </script>
+</body>
+</html>

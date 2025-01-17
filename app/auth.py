@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, url_for, flash, make_response, session
+from flask import render_template, request, redirect, url_for, flash, make_response, session, jsonify
 from app import app, mysql, bcrypt
 from wtforms import Form, StringField, PasswordField, validators
 import jwt
@@ -138,22 +138,27 @@ def cuenta():
 
     username = user['username']
 
-    # Получение результатов игр
+    # Получение результатов Pacman
     cur = mysql.connection.cursor()
-    cur.execute("""SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at
-                   FROM game_results r
-                   JOIN users u ON r.user_id = u.id
-                   GROUP BY u.username
-                   ORDER BY score DESC
-                   LIMIT 10""")
+    cur.execute("""
+        SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at, u.estrellas
+        FROM game_results r
+        JOIN users u ON r.user_id = u.id
+        GROUP BY u.username, u.estrellas
+        ORDER BY score DESC
+        LIMIT 10
+    """)
     pacman_results = cur.fetchall()
 
-    cur.execute("""SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at
-                   FROM galaga_results r
-                   JOIN users u ON r.user_id = u.id
-                   GROUP BY u.username
-                   ORDER BY score DESC
-                   LIMIT 10""")
+    # Получение результатов Galaga
+    cur.execute("""
+        SELECT u.username, MAX(r.score) AS score, MAX(r.created_at) AS created_at, u.estrellas
+        FROM galaga_results r
+        JOIN users u ON r.user_id = u.id
+        GROUP BY u.username, u.estrellas
+        ORDER BY score DESC
+        LIMIT 10
+    """)
     galaga_results = cur.fetchall()
     cur.close()
 
@@ -163,6 +168,7 @@ def cuenta():
         pacman_results=pacman_results,
         galaga_results=galaga_results
     )
+
 
 def refresh_token(user):
     token = jwt.encode({
@@ -199,3 +205,4 @@ def logout():
     response.delete_cookie('auth_token')  # Удаление токена из куки
     flash('Вы вышли из системы', 'success')
     return response
+

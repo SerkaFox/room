@@ -210,15 +210,14 @@ def quiz_all_results_summary():
         flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
 
-    username = user['username']
-
-    # Извлечение общего количества вопросов и правильных ответов каждого пользователя
     cur = mysql.connection.cursor()
     cur.execute("""
         SELECT u.username,
                COUNT(CASE WHEN ua.is_correct THEN 1 END) AS correct_answers,
                COUNT(*) AS total_answers,
-               ROUND((COUNT(CASE WHEN ua.is_correct THEN 1 END) / COUNT(*)) * 100, 2) AS percentage
+               (SELECT COUNT(*) FROM questions) AS total_questions,
+               ROUND((COUNT(CASE WHEN ua.is_correct THEN 1 END) / (SELECT COUNT(*) FROM questions)) * 100, 2) AS percentage,
+               u.last_star_threshold
         FROM user_answers ua
         JOIN users u ON ua.user_id = u.id
         GROUP BY u.username
@@ -227,7 +226,26 @@ def quiz_all_results_summary():
     results = cur.fetchall()
     cur.close()
 
-    return render_template('quiz_summary.html', results=results)
+    # Определяем пользователей, которые достигли новых порогов
+    thresholds = [80, 90, 100]
+    users_with_new_stars = []
+
+    for row in results:
+        username = row[0]
+        percentage = row[4]
+        last_threshold = row[5]
+
+        for threshold in thresholds:
+            if percentage >= threshold > last_threshold:
+                users_with_new_stars.append({"username": username, "threshold": threshold})
+                break
+
+    return render_template(
+        'quiz_summary.html',
+        results=results,
+        users_with_new_stars=users_with_new_stars
+    )
+
 
 @app.route('/quiz_results')
 def quiz_results():
@@ -264,3 +282,93 @@ def quiz_results():
     return render_template('quiz_results.html', correct_count=correct_count, incorrect_answers=incorrect_answers)
 
 
+@app.route('/quiz_results_combined', methods=['GET', 'POST'])
+def quiz_results_combined():
+    user = get_current_user()
+    if not user:
+        flash('Вам нужно войти в систему', 'warning')
+        return redirect('/login')
+
+    username = user['username']
+    cur = mysql.connection.cursor()
+
+    # 1. Получаем личные результаты
+    cur.execute("SELECT id FROM users WHERE username = %s", [username])
+    user_row = cur.fetchone()
+    user_id = user_row[0]
+
+    cur.execute("""
+        SELECT COUNT(*) FROM user_answers
+        WHERE user_id = %s AND is_correct = TRUE
+    """, [user_id])
+    correct_count = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT q.question, q.option_a, q.option_b, q.option_c, q.option_d, q.correct_option, ua.selected_option
+        FROM user_answers ua
+        JOIN questions q ON ua.question_id = q.id
+        WHERE ua.user_id = %s AND ua.is_correct = FALSE
+    """, [user_id])
+    incorrect_answers = cur.fetchall()
+
+    # 2. Получаем резюме
+    cur.execute("""
+        SELECT u.username,
+               COUNT(CASE WHEN ua.is_correct THEN 1 END) AS correct_answers,
+               COUNT(*) AS total_answers,
+               ROUND((COUNT(CASE WHEN ua.is_correct THEN 1 END) / COUNT(*)) * 100, 2) AS percentage
+        FROM user_answers ua
+        JOIN users u ON ua.user_id = u.id
+        GROUP BY u.username
+        ORDER BY percentage DESC
+    """)
+    summary_results = cur.fetchall()
+
+    # 3. Получаем общие результаты с фильтрацией
+    cur.execute("SELECT DISTINCT username FROM users ORDER BY username")
+    users = cur.fetchall()
+
+    selected_user = request.args.get('username', 'Todos')  # Получаем фильтр из строки запроса
+
+    if selected_user and selected_user != "Todos":
+        cur.execute("""
+            SELECT u.username, q.question, ua.selected_option, q.correct_option,
+                   CASE 
+                       WHEN ua.is_correct THEN 'Correcto' 
+                       ELSE 'Incorrecto' 
+                   END AS status,
+                   q.option_a, q.option_b, q.option_c, q.option_d
+            FROM user_answers ua
+            JOIN users u ON ua.user_id = u.id
+            JOIN questions q ON ua.question_id = q.id
+            WHERE u.username = %s
+            ORDER BY q.id
+        """, [selected_user])
+    else:
+        cur.execute("""
+            SELECT u.username, q.question, ua.selected_option, q.correct_option,
+                   CASE 
+                       WHEN ua.is_correct THEN 'Correcto' 
+                       ELSE 'Incorrecto' 
+                   END AS status,
+                   q.option_a, q.option_b, q.option_c, q.option_d
+            FROM user_answers ua
+            JOIN users u ON ua.user_id = u.id
+            JOIN questions q ON ua.question_id = q.id
+            ORDER BY u.username, q.id
+        """)
+
+    general_results = cur.fetchall()
+    cur.close()
+
+    # Формируем данные для шаблона
+    return render_template(
+        'results.html',
+        username=username,
+        correct_count=correct_count,
+        incorrect_answers=incorrect_answers,
+        summary_results=summary_results,
+        general_results=general_results,
+        users=users,
+        selected_user=selected_user
+    )

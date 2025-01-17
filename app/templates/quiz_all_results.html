@@ -69,21 +69,6 @@
             z-index: 1000;
         }
 
-        .back-button {
-            display: inline-block;
-            margin-top: 2rem;
-            padding: 1rem 2rem;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1rem;
-            border-radius: 10px;
-            transition: background-color 0.3s;
-        }
-
-        .back-button:hover {
-            background-color: #0056b3;
-        }
 
         .filter-form {
             margin-bottom: 2rem;
@@ -118,7 +103,7 @@
 <body>
     <h1>🎮 Resultados Generales 🎮</h1>
 
-    <!-- Форма фильтрации -->
+    <!-- Форма фильтрации 
     <form method="POST" class="filter-form">
         <select name="username" class="filter-select">
             <option value="Todos" {% if selected_user == "Todos" %}selected{% endif %}>Todos</option>
@@ -128,7 +113,7 @@
         </select>
         <button type="submit" class="filter-button">Filtrar</button>
     </form>
-
+-->
     <table>
         <thead>
             <tr>
@@ -160,7 +145,6 @@
         </tbody>
     </table>
 
-    <a href="{{ url_for('cuenta') }}" class="back-button">Volver a la cuenta</a>
 
     <script>
         document.querySelectorAll('.tooltip').forEach(item => {

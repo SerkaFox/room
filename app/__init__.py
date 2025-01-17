@@ -20,4 +20,4 @@ app.config['MYSQL_DATABASE_CHARSET'] = 'utf8mb4'
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
 app.config['JWT_EXPIRATION_DELTA'] = timedelta(days=7)  # Срок действия токена
 
-from app import auth, chat_sql, games, quiz
+from app import auth, chat_sql, games, quiz, roulette 

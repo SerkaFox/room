@@ -185,6 +185,26 @@
                 gap: 5px;
             }
         }
+		        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .floating-button:hover {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            box-shadow: 0 0 20px rgba(0, 86, 179, 0.8);
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -193,35 +213,49 @@
 	    <div>
         
     </div>
-    <table id="results-table">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Puntos</th>
-                <th>Fecha</th>
+<table id="results-table">
+    <thead>
+        <tr>
+            <th>
+                Nombre
+                <button onclick="toggleSort(this, 0)">↕️</button>
+            </th>
+            <th>
+                Puntos
+                <button onclick="toggleSort(this, 1)">↕️</button>
+            </th>
+            <th>
+                Fecha
+                <button onclick="toggleSort(this, 2)">↕️</button>
+            </th> 
+        </tr>
+    </thead>
+    <tbody>
+        {% if pacman_results %}
+            {% for result in pacman_results %}
+            <tr class="pacman-result" {% if initial_game != 'pacman' %}style="display: none;"{% endif %}>
+                <td>{{ result[0] }}</td>
+                <td>{{ result[1] }}</td>
+                <td>{{ result[2] }}</td>
+
             </tr>
-        </thead>
-        <tbody>
-            {% if pacman_results %}
-                {% for result in pacman_results %}
-                <tr class="pacman-result" {% if initial_game != 'pacman' %}style="display: none;"{% endif %}>
-                    <td>{{ result[0] }}</td>
-                    <td>{{ result[1] }}</td>
-                    <td>{{ result[2] }}</td>
-                </tr>
-                {% endfor %}
-            {% endif %}
-            {% if galaga_results %}
-                {% for result in galaga_results %}
-                <tr class="galaga-result" {% if initial_game != 'galaga' %}style="display: none;"{% endif %}>
-                    <td>{{ result[0] }}</td>
-                    <td>{{ result[1] }}</td>
-                    <td>{{ result[2] }}</td>
-                </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
+            {% endfor %}
+        {% endif %}
+        {% if galaga_results %}
+            {% for result in galaga_results %}
+            <tr class="galaga-result" {% if initial_game != 'galaga' %}style="display: none;"{% endif %}>
+                <td>{{ result[0] }}</td>
+                <td>{{ result[1] }}</td>
+                <td>{{ result[2] }}</td>
+
+            </tr>
+            {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
+
+
 </div>
 
 <div class="game-container">
@@ -234,34 +268,69 @@
 </div>
 
     <!-- Меню -->
-    <div class="menu-container">
-        <a href="/quiz" class="quiz-button">💡 ¡Haz el Quiz!</a>
-		<a href="/chat" class="quiz-button">😀 Chat</a>
-        <button class="menu-button" onclick="toggleMenu()">📋 Opciones</button>
-        <div class="menu-content" id="menuContent">
-            <a href="/quiz_results">📊 Tus Resultados</a>
-            <a href="/quiz_all_results">🌍 Resultados Globales</a>
-            <a href="/quiz_all_results_summary">📈 Resumen Total</a>
-            <a href="/sql_console">📟 SQL Console</a>
+<div class="menu-container">
+    <a href="/quiz" class="quiz-button">💡 ¡Haz el Quiz!</a>
+    <a href="/chat" class="quiz-button">😀 Chat</a>
+	{% if username == 'profe' %}
+			<a href="http://serjio/roulette" class="quiz-button">🎰 Roulette</a>
+			{% endif %}
+			<a href="/all_users" class="quiz-button">🌟 Mis Estrellas</a>
 
-			<a href="/download/app.exe" class="download-link">app.exe</a>
-			            <a href="http:\\localhost">Tu servedor</a>
-						<a href="/logout">🚪 Salir</a>
+			<a href="/quiz_results_combined" class="quiz-button">📊 Resultados</a>
+			<a href="/sql_console" class="quiz-button">📟 SQL Console</a>
+			<a href="/download/app.exe"  class="quiz-button" class="download-link">app.exe</a>
+			<a href="http:\\localhost" class="quiz-button">Tu servidor</a>
 
-        </div>
-        
-        <button class="switch-game-button" id="switch-game-button" onclick="switchGame()">🚀 Juega Galaga</button>
-		<button class="switch-game-button" onclick="showResults('combined')">Total Score</button>
-		
-    </div>
 
-    <script>
-        function toggleMenu() {
-            const menu = document.getElementById('menuContent');
-            menu.classList.toggle('active');
+
+    <button class="switch-game-button" id="switch-game-button" onclick="switchGame()">🚀 Juega Galaga</button>
+    <button class="switch-game-button" onclick="showResults('combined')">Total Score</button>
+	<a href="/cuenta" class="floating-button">🚪 Salir</a>
+</div>
+
+<script>
+function toggleSort(button, columnIndex) {
+    const table = document.getElementById("results-table");
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+
+    // Определяем текущее направление сортировки
+    const currentOrder = button.dataset.order || 'asc';
+    const newOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+
+    // Сортируем строки
+    rows.sort((rowA, rowB) => {
+        const cellA = rowA.cells[columnIndex].innerText.trim();
+        const cellB = rowB.cells[columnIndex].innerText.trim();
+
+        if (!isNaN(cellA) && !isNaN(cellB)) {
+            // Числовая сортировка
+            return newOrder === 'asc' ? cellA - cellB : cellB - cellA;
+        } else if (Date.parse(cellA) && Date.parse(cellB)) {
+            // Сортировка по дате
+            return newOrder === 'asc'
+                ? new Date(cellA) - new Date(cellB)
+                : new Date(cellB) - new Date(cellA);
+        } else {
+            // Текстовая сортировка
+            return newOrder === 'asc'
+                ? cellA.localeCompare(cellB)
+                : cellB.localeCompare(cellA);
         }
-    </script>
+    });
 
+    // Перестраиваем таблицу
+    rows.forEach(row => tbody.appendChild(row));
+
+    // Обновляем направление сортировки
+    button.dataset.order = newOrder;
+
+    // Меняем текст кнопки
+    button.innerText = newOrder === 'asc' ? '⬆️' : '⬇️';
+}
+
+
+</script>
     <script src="{{ url_for('static', filename='js/modernizr-1.5.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pacman.js') }}"></script>
     <script>
@@ -334,7 +403,7 @@ function showResults(game) {
                 gameContent.innerHTML = `
                     <div id="pacman"></div>
                 `;
-                switchButton.textContent = 'Galaga';
+                switchButton.textContent = '🚀 Juega Galaga';
 				showResults('pacman');
                 // Инициализация Pacman
                 const el = document.getElementById('pacman');
@@ -346,7 +415,7 @@ function showResults(game) {
                         "(firefox 3.6+, Chrome 4+, Opera 10+ y Safari 4+)</small>";
                 }
             } else if (game === 'galaga') {
-                gameTitle.textContent = 'Galaga';
+                gameTitle.textContent = '🚀 Juega Galaga';
                 gameContent.innerHTML = `
                     <iframe src="/galaga" width="500" height="400" frameborder="0"></iframe>
 					
@@ -371,5 +440,6 @@ function showResults(game) {
         const initialGame = getGameFromURL();
         loadGame(initialGame);
     </script>
+	
 </body>
 </html>

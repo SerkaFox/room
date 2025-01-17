@@ -207,6 +207,26 @@
         .CodeMirror-cursor {
             border-left: 2px solid #ffeb3b;
         }
+		        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .floating-button:hover {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            box-shadow: 0 0 20px rgba(0, 86, 179, 0.8);
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -281,10 +301,7 @@
         <p class="error">{{ error }}</p>
         {% endif %}
 
-        <div class="top-right-buttons">
-            <a href="{{ url_for('cuenta') }}" class="cuenta">🏠 Cuenta</a>
-            <a href="{{ url_for('logout') }}" class="logout">🚪 Salir</a>
-        </div>
+<a href="/cuenta" class="floating-button">Volver</a>
 
         <div class="gif-container">
             <img src="{{ selected_gif }}" alt="Random GIF">

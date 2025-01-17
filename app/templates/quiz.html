@@ -125,18 +125,7 @@
             font-size: 1rem;
         }
 
-        /* Стили для кнопки возвращения */
-        .return-link {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 2rem;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
+
 
         .return-link:hover {
             background-color: #0056b3;
@@ -210,42 +199,34 @@ input[type="radio"] {
     margin-top: 1rem;
 }
 /* Контейнер для результата с анимацией выезда */
-.feedback-container {
-    position: fixed;
-    top: 50%; /* Центрируем по вертикали */
-    left: 50%; /* Центрируем по горизонтали */
-    transform: translate(-50%, -50%); /* Сдвигаем на 50% для точного центрирования */
-    transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
-    width: 300px;
-    background-color: #333;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    z-index: 10;
-    opacity: 0; /* Скрыть элемент по умолчанию */
-}
+        .feedback-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
+            width: 300px;
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            opacity: 0;
+        }
 
-/* Когда результат появляется на экране */
-.feedback-container.show {
-    transform: translate(-50%, -50%) scale(1); /* Появляется из центра */
-    opacity: 1; /* Сделать видимым */
-}
+        .feedback-container.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
 
-/* Когда результат уходит влево */
-.feedback-container.hide {
-    transform: translate(-150%, -50%); /* Убираем его влево */
-    opacity: 0; /* Прячем его */
-}
+        .feedback-container.hide {
+            transform: translate(-150%, -50%);
+            opacity: 0;
+        }
 
-/* Стиль для заголовка и текста */
-.feedback-container h2 {
-    color: #ffeb3b;
-    margin-bottom: 10px;
-}
-
-.feedback-container p {
-    color: white;
-}
+        .feedback-container p {
+            color: white;
+        }
 
 /* Стили для текста после символов >>> */
 .new-line {
@@ -277,7 +258,26 @@ input[type="radio"] {
     border-radius: 5px;
     margin-top: 10px;
 }
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
 
+        .floating-button:hover {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            box-shadow: 0 0 20px rgba(0, 86, 179, 0.8);
+            transform: scale(1.1);
+        }
 
     </style>
 <script>
@@ -399,24 +399,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
 {% if result %}
     <!-- Контейнер с результатом, который будет выезжать сбоку -->
-    <div class="feedback-container {{ 'show' if result is not none else '' }}">
-        <div class="feedback {% if result.is_correct %}correct{% else %}incorrect{% endif %}">
-            <h2>Respuesta enviada!</h2>
-            <p><strong>Tu respuesta:</strong> {{ result.selected_option }}</p>
-            <p><strong>Respuesta correcta:</strong> {{ result.correct_option }}</p>
-
-            {% if result.is_correct %}
-                <p>¡Correcto! 🎉</p>
-                <div class="gif-feedback">
-                    <img src="{{ random_correct_gif }}" alt="Correcto GIF" width="200">
-                </div>
-            {% else %}
-                <p>Incorrecto 😞. ¡No te preocupes, sigue intentándolo!</p>
-                <div class="gif-feedback">
-                    <img src="{{ random_incorrect_gif }}" alt="Incorrecto GIF" width="200">
-                </div>
-            {% endif %}
+    <div class="feedback-container show">
+        {% if result.is_correct %}
+        <div class="feedback correct">
+            <h2>¡Correcto! 🎉</h2>
+            <p>¡Buena elección!</p>
+            <div class="gif-feedback">
+                <img src="{{ random_correct_gif }}" alt="Correcto GIF" width="200">
+            </div>
         </div>
+        {% else %}
+        <div class="feedback incorrect">
+            <h2>Incorrecto 😞</h2>
+            <p>La respuesta correcta era: {{ result.correct_option }}</p>
+            <div class="gif-feedback">
+                <img src="{{ random_incorrect_gif }}" alt="Incorrecto GIF" width="200">
+            </div>
+        </div>
+        {% endif %}
         <a class="next-button" href="{{ url_for('quiz') }}">Siguiente pregunta</a>
     </div>
 
@@ -454,8 +454,7 @@ document.addEventListener("DOMContentLoaded", function() {
 {% endif %}
 
 
-    <!-- Кнопка возвращения на страницу профиля -->
-    <a href="/cuenta" class="return-link">Volver</a>
+<a href="/cuenta" class="floating-button">Volver</a>
 </body>
 
 </html>
