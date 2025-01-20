@@ -211,7 +211,7 @@
 <div class="sidebar">
     <h2>Resultados</h2>
 	    <div>
-        
+
     </div>
 <table id="results-table">
     <thead>
@@ -227,7 +227,7 @@
             <th>
                 Fecha
                 <button onclick="toggleSort(this, 2)">↕️</button>
-            </th> 
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -277,7 +277,7 @@
 			<a href="/all_users" class="quiz-button">🌟 Mis Estrellas</a>
 
 			<a href="/quiz_results_combined" class="quiz-button">📊 Resultados</a>
-			<a href="/sql_console" class="quiz-button">📟 SQL Console</a>
+			<!--a href="/sql_console" class="quiz-button">📟 SQL Console</a-->
 			<a href="/download/app.exe"  class="quiz-button" class="download-link">app.exe</a>
 			<a href="http:\\localhost" class="quiz-button">Tu servidor</a>
 
@@ -285,7 +285,7 @@
 
     <button class="switch-game-button" id="switch-game-button" onclick="switchGame()">🚀 Juega Galaga</button>
     <button class="switch-game-button" onclick="showResults('combined')">Total Score</button>
-	<a href="/cuenta" class="floating-button">🚪 Salir</a>
+	<a href="/logout" class="floating-button">🚪 Salir</a>
 </div>
 
 <script>
@@ -407,10 +407,10 @@ function showResults(game) {
 				showResults('pacman');
                 // Инициализация Pacman
                 const el = document.getElementById('pacman');
-                if (Modernizr.canvas && Modernizr.localstorage && 
+                if (Modernizr.canvas && Modernizr.localstorage &&
                     Modernizr.audio && (Modernizr.audio.ogg || Modernizr.audio.mp3)) {
                     window.setTimeout(function () { PACMAN.init(el, "/static/"); }, 0);
-                } else { 
+                } else {
                     el.innerHTML = "Lo sentimos, necesitas un navegador moderno<br /><small>" +
                         "(firefox 3.6+, Chrome 4+, Opera 10+ y Safari 4+)</small>";
                 }
@@ -418,7 +418,7 @@ function showResults(game) {
                 gameTitle.textContent = '🚀 Juega Galaga';
                 gameContent.innerHTML = `
                     <iframe src="/galaga" width="500" height="400" frameborder="0"></iframe>
-					
+
                 `
 				;
                 switchButton.textContent = 'Pacman';
@@ -440,6 +440,6 @@ function showResults(game) {
         const initialGame = getGameFromURL();
         loadGame(initialGame);
     </script>
-	
+
 </body>
 </html>

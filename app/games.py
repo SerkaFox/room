@@ -2,6 +2,7 @@ from flask import render_template, request, jsonify, redirect, url_for, send_fro
 from app import app, mysql
 from werkzeug.utils import secure_filename
 import os
+import json
 from app.auth import get_current_user
 
 
@@ -47,73 +48,147 @@ def save_galaga_result():
 @app.route('/galaga')
 def galaga():
     return send_from_directory('static/galaga', 'index.html')
-    
+
+
 @app.route('/all_users')
 def all_users():
-    # Получаем текущего пользователя
     user = get_current_user()
     if not user:
         flash('Вам нужно войти в систему', 'warning')
         return redirect('/login')
 
-    # Список пользователей, которых нужно исключить
-    excluded_users = ['profe', 'serka']  # Добавьте здесь имена исключаемых пользователей
-
-    # SQL-запрос для получения всех пользователей, кроме исключенных
+    excluded_users = ['profe', 'serka']
     cur = mysql.connection.cursor()
-    format_strings = ', '.join(['%s'] * len(excluded_users))
     query = f"""
-        SELECT username, estrellas 
+        SELECT username, estrellas, star_thresholds, porcentaje
         FROM users
-        WHERE username NOT IN ({format_strings})
+        WHERE username NOT IN ({', '.join(['%s'] * len(excluded_users))})
         ORDER BY estrellas DESC, username ASC
     """
     cur.execute(query, excluded_users)
     all_users = cur.fetchall()
+
+    # Преобразование активированных наград в список
+    users_with_thresholds = []
+    for username, estrellas, star_thresholds, porcentaje in all_users:
+        activated_thresholds = json.loads(star_thresholds) if star_thresholds else []
+        users_with_thresholds.append((username, estrellas, activated_thresholds, porcentaje))
+
     cur.close()
 
-    # Передаем список пользователей в шаблон
     return render_template(
         'all_users.html',
         username=user['username'],
-        all_users=all_users
+        all_users=users_with_thresholds
     )
-
 
 
 
 @app.route('/update_stars', methods=['POST'])
 def update_stars():
-    user = get_current_user()
-    # if not user or user['username'] != 'profe':
-    #     return jsonify({"success": False, "message": "Acceso denegado."}), 403
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({"success": False, "message": "Usuario no autenticado."}), 401
 
-    data = request.get_json()
-    username = data.get('username')
-    threshold = data.get('threshold')
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "No se enviaron datos."}), 400
 
-    if not username or not threshold:
-        return jsonify({"success": False, "message": "Datos inválidos."}), 400
+        username = data.get('username')
+        threshold = data.get('threshold')  # Используем threshold вместо change
 
-    cur = mysql.connection.cursor()
-    cur.execute("SELECT estrellas, last_star_threshold FROM users WHERE username = %s", [username])
-    result = cur.fetchone()
+        # Проверяем наличие обязательных параметров
+        if not username or threshold is None:
+            return jsonify({"success": False, "message": "Datos inválidos. Faltan parámetros obligatorios."}), 400
 
-    if result is None:
-        return jsonify({"success": False, "message": "Usuario no encontrado."}), 404
+        try:
+            threshold = int(threshold)  # Преобразуем threshold в целое число
+        except ValueError:
+            return jsonify({"success": False, "message": "El parámetro 'threshold' debe ser un número entero."}), 400
 
-    current_stars, last_threshold = result
-    if threshold <= last_threshold:
-        return jsonify({"success": False, "message": "El usuario ya recibió una estrella para este nivel."}), 400
+        # Логика обработки изменений звёзд
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT estrellas, star_thresholds FROM users WHERE username = %s", [username])
+        result = cur.fetchone()
 
-    # Обновляем количество звезд и порог
-    new_stars = current_stars + 1
-    cur.execute(
-        "UPDATE users SET estrellas = %s, last_star_threshold = %s WHERE username = %s",
-        [new_stars, threshold, username]
-    )
-    mysql.connection.commit()
-    cur.close()
+        if result is None:
+            return jsonify({"success": False, "message": "Usuario no encontrado."}), 404
 
-    return jsonify({"success": True, "new_stars": new_stars})
+        current_stars, star_thresholds = result
+
+        # Преобразуем star_thresholds в список
+        if star_thresholds:
+            activated_thresholds = json.loads(star_thresholds)
+        else:
+            activated_thresholds = []
+
+        # Проверяем, можно ли добавить звезду для данного порога
+        if threshold in activated_thresholds:
+            return jsonify({"success": False, "message": "Esta estrella ya fue activada."}), 400
+
+        # Добавляем звезду
+        activated_thresholds.append(threshold)
+        new_stars = current_stars + 1
+
+        # Обновляем данные в базе
+        cur.execute(
+            "UPDATE users SET estrellas = %s, star_thresholds = %s WHERE username = %s",
+            [new_stars, json.dumps(activated_thresholds), username]
+        )
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"success": True, "new_stars": new_stars, "activated_thresholds": activated_thresholds})
+
+    except Exception as e:
+        print(f"Error en /update_stars: {e}")
+        return jsonify({"success": False, "message": "Error interno del servidor."}), 500
+
+
+@app.route('/update_stars_simple', methods=['POST'])
+def update_stars_simple():
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({"success": False, "message": "Usuario no autenticado."}), 401
+
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "No se enviaron datos."}), 400
+
+        username = data.get('username')
+        threshold = data.get('threshold')
+
+        if not username or threshold is None:
+            return jsonify({"success": False, "message": "Datos inválidos. Faltan parámetros obligatorios."}), 400
+
+        try:
+            threshold = int(threshold)  # Преобразуем threshold в целое число
+        except ValueError:
+            return jsonify({"success": False, "message": "El parámetro 'threshold' debe ser un número entero."}), 400
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT estrellas FROM users WHERE username = %s", [username])
+        result = cur.fetchone()
+
+        if result is None:
+            return jsonify({"success": False, "message": "Usuario no encontrado."}), 404
+
+        current_stars = result[0]
+        new_stars = current_stars + threshold
+
+        if new_stars < 0:
+            return jsonify({"success": False, "message": "No se pueden tener menos de 0 estrellas."}), 400
+
+        # Обновляем количество звёзд
+        cur.execute("UPDATE users SET estrellas = %s WHERE username = %s", [new_stars, username])
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"success": True, "new_stars": new_stars})
+
+    except Exception as e:
+        print(f"Error en /update_stars_simple: {e}")
+        return jsonify({"success": False, "message": "Error interno del servidor."}), 500
 

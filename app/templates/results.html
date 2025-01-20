@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -172,37 +171,84 @@
             loadResults('/quiz_results');
         };
     </script>
-	    <script>
-        function addStar(element) {
-            if (element.classList.contains('disabled')) {
-                return; // Звезда уже была добавлена
-            }
+<script>
+    function addStar(element) {
+        if (element.classList.contains('disabled')) {
+            return; // Звезда уже была добавлена
+        }
 
-            const username = element.dataset.username;
-            const percentage = parseFloat(element.dataset.percentage);
+        const username = element.dataset.username;
+        const percentage = parseFloat(element.dataset.percentage);
 
-            // Отправляем запрос на сервер для добавления звезды
+        // Анимация звезды
+        animateStar(element, () => {
+            // Показываем оверлей с гифкой после завершения анимации звезды
+            showOverlay('https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2NkMDJvNHpuMHY1dGk1dWt4cGY3dXRpM2g2b2RtYW1qeGZhdWpwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JqIrxIRLrxx0NHxMDI/giphy.gif');
+
+            // Отправляем запрос на сервер
             fetch('/update_stars', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: username, change: 1 })
+                body: JSON.stringify({ username: username, threshold: percentage })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert(`¡Estrella añadida para ${username} con ${percentage}%!`);
-                    element.classList.add('disabled'); // Блокируем звезду после добавления
+                    setTimeout(() => {
+                        hideOverlay();
+                    }, 3000); // Закрываем оверлей через 3 секунды
                 } else {
+                    hideOverlay();
                     alert(data.message || 'Error al añadir estrella.');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
+                hideOverlay();
                 alert('No se pudo procesar la acción. Inténtalo más tarde.');
             });
-        }
-    </script>
+        });
+    }
+
+    function animateStar(element, callback) {
+        const starRect = element.getBoundingClientRect();
+        const clone = element.cloneNode(true);
+
+        clone.style.position = 'fixed';
+        clone.style.left = `${starRect.left}px`;
+        clone.style.top = `${starRect.top}px`;
+        clone.style.width = `${starRect.width}px`;
+        clone.style.height = `${starRect.height}px`;
+        clone.classList.add('star-animating');
+
+        document.body.appendChild(clone);
+
+        // Удаляем звезду после завершения анимации и вызываем callback
+        setTimeout(() => {
+            clone.remove();
+            if (typeof callback === 'function') {
+                callback();
+            }
+        }, 3000); // Длительность анимации звезды
+		element.classList.add('disabled');
+    }
+
+    function showOverlay(gifUrl) {
+        const overlay = document.getElementById('overlay');
+        const overlayGif = document.getElementById('overlay-gif');
+        overlayGif.src = gifUrl;
+        overlay.classList.add('active');
+    }
+
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.classList.remove('active');
+    }
+</script>
+
+
+
 </body>
 </html>

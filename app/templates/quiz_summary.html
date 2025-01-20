@@ -68,9 +68,91 @@
             cursor: not-allowed;
             opacity: 0.5;
         }
+
+@keyframes flyAway {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: translate(-50vw, 0) scale(3); /* Перемещаем звезду в центр экрана */
+        opacity: 1;
+    }
+    70% {
+        transform: translate(-50vw, 0) scale(5); /* Задержка в центре */
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50vw, -150vh) scale(5); /* Улёт вверх */
+        opacity: 0;
+    }
+}
+
+.star-animating {
+    animation: flyAway 3s ease-out forwards;
+    position: fixed;
+    z-index: 10;
+}
+
+
+
+
+
+
+    .gif-container {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 20;
+    }
+
+    .gif-container img {
+        max-width: 90%;
+        max-height: 90%;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+
+
     </style>
 </head>
 <body>
+
+
+<div id="overlay" class="overlay">
+    <img id="overlay-gif" src="" alt="Celebration GIF">
+</div>
+
+<style>
+    .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 50;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .overlay.active {
+        display: flex;
+    }
+
+    .overlay img {
+        max-width: 80%;
+        max-height: 80%;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+</style>
+
+
+
     <h1>🎮 Resumen de Resultados 🎮</h1>
 
     <table>
@@ -81,64 +163,31 @@
                 <th>Respuestas Incorrectas</th>
                 <th>Total Preguntas</th>
                 <th>Porcentaje Correcto</th>
-                <!-- <th>Premio</th> -->
+                <th>Premio</th>
             </tr>
         </thead>
-        <tbody>
-            {% for result in results %}
-            <tr class="{% if result[4] >= 80 %}high-percentage{% elif result[4] >= 50 %}neutral-percentage{% else %}low-percentage{% endif %}">
-                <td>{{ result[0] }}</td>
-                <td>{{ result[1] }}</td>
-                <td>{{ result[2] - result[1] }}</td>
-                <td>{{ result[2] }}</td>
-                <td>{{ result[4] }}%</td>
-               <!-- <td>
-                    {% if result[4] >= 80 %}
-                    <span 
-                        class="star" 
-                        data-username="{{ result[0] }}" 
-                        data-percentage="{{ result[4] }}" 
-                        onclick="addStar(this)"
-                    >⭐</span>
-                    {% endif %}
-                </td> -->
-				
-            </tr>
+<tbody>
+    {% for result in results %}
+    <tr class="{% if result['percentage'] >= 80 %}high-percentage{% elif result['percentage'] >= 50 %}neutral-percentage{% else %}low-percentage{% endif %}">
+        <td>{{ result['username'] }}</td>
+        <td>{{ result['correct_answers'] }}</td>
+        <td>{{ result['total_answers'] - result['correct_answers'] }}</td>
+        <td>{{ result['total_questions'] }}</td>
+        <td>{{ result['percentage'] }}%</td>
+        <td>
+            {% for star in result['available_stars'] %}
+                <span
+                    class="star"
+                    data-username="{{ result['username'] }}"
+                    data-percentage="{{ star }}"
+                    onclick="addStar(this)"
+                >⭐ ({{ star }}%)</span>
             {% endfor %}
-        </tbody>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+
     </table>
-
-    <script>
-        function addStar(element) {
-            if (element.classList.contains('disabled')) {
-                return; // Звезда уже была добавлена
-            }
-
-            const username = element.dataset.username;
-            const percentage = parseFloat(element.dataset.percentage);
-
-            // Отправляем запрос на сервер для добавления звезды
-            fetch('/update_stars', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username: username, change: 1 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(`¡Estrella añadida para ${username} con ${percentage}%!`);
-                    element.classList.add('disabled'); // Блокируем звезду после добавления
-                } else {
-                    alert(data.message || 'Error al añadir estrella.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('No se pudo procesar la acción. Inténtalo más tarde.');
-            });
-        }
-    </script>
 </body>
 </html>

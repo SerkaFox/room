@@ -189,7 +189,7 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Estrellas</th>
-                    {% if username == 'profe' %}
+                    {% if username == 'Serka' %}
                     <th>Acciones</th>
                     {% endif %}
                 </tr>
@@ -216,7 +216,7 @@
                             <span class="small-star">★</span>
                         {% endfor %}
                     </td>
-					{% if username == 'profe' %}
+					{% if username == 'Serka' %}
 					<td>
 						<div class="button-container">
 							<button class="button" onclick="updateStars('{{ user[0] }}', 1)">+</button>
@@ -231,49 +231,51 @@
         </table>
     </div>
 
-    <script>
-        function showOverlay(gifUrl) {
-            const overlay = document.getElementById('overlay');
-            const overlayGif = document.getElementById('overlay-gif');
-            overlayGif.src = gifUrl;
-            overlay.classList.add('active');
-        }
+<script>
+    function showOverlay(gifUrl) {
+        const overlay = document.getElementById('overlay');
+        const overlayGif = document.getElementById('overlay-gif');
+        overlayGif.src = gifUrl;
+        overlay.classList.add('active');
+    }
 
-        function hideOverlay() {
-            const overlay = document.getElementById('overlay');
-            overlay.classList.remove('active');
-        }
+    function hideOverlay() {
+        const overlay = document.getElementById('overlay');
+        overlay.classList.remove('active');
+    }
 
-        function updateStars(username, change) {
-            const gifUrl = change > 0 
-                ? 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2NkMDJvNHpuMHY1dGk1dWt4cGY3dXRpM2g2b2RtYW1qeGZhdWpwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JqIrxIRLrxx0NHxMDI/giphy.gif'
-                : 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDdydGNwOG0xcmJjdWo2cm01c2N3OG9ibzVoNXg4bWRrb2x0aWF1OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/g3bB5lYCWwqOIxeVdx/giphy.gif';
+function updateStars(username, threshold) {
+    const gifUrl = threshold > 0
+        ? 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2NkMDJvNHpuMHY1dGk1dWt4cGY3dXRpM2g2b2RtYW1qeGZhdWpwbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JqIrxIRLrxx0NHxMDI/giphy.gif' // Для добавления
+        : 'https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDdydGNwOG0xcmJjdWo2cm01c2N3OG9ibzVoNXg4bWRrb2x0aWF1OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/g3bB5lYCWwqOIxeVdx/giphy.gif'; // Для удаления
 
-            showOverlay(gifUrl); // Показываем гифку
-            fetch('/update_stars', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username: username, change: change })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3500);
-                } else {
-                    hideOverlay();
-                    alert(data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                hideOverlay();
-                alert('Ocurrió un error al actualizar las estrellas.');
-            });
+    showOverlay(gifUrl); // Показываем гифку
+    fetch('/update_stars_simple', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: username, threshold: threshold }) // threshold может быть положительным или отрицательным
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            setTimeout(() => {
+                location.reload();
+            }, 3500); // Обновляем страницу после 3.5 секунд
+        } else {
+            hideOverlay();
+            alert(data.message || 'Error al añadir estrella.');
         }
-    </script>
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        hideOverlay();
+        alert('Ocurrió un error al actualizar las estrellas.');
+    });
+}
+
+</script>
+
 </body>
 </html>

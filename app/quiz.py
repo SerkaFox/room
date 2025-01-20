@@ -1,6 +1,7 @@
 from flask import render_template, request, jsonify, redirect, url_for, flash, session
 from app import app, mysql
 import random
+import json
 from app.auth import get_current_user
 
 
@@ -135,7 +136,7 @@ def reset_quiz():
 
     flash('Tus respuestas han sido reseteadas. Puedes comenzar de nuevo.', 'success')
     return redirect(url_for('quiz'))  # Redirigir al inicio del quiz
-    
+
 @app.route('/quiz_all_results', methods=['GET', 'POST'])
 def quiz_all_results():
     user = get_current_user()
@@ -157,9 +158,9 @@ def quiz_all_results():
     if selected_user and selected_user != "Todos":
         cur.execute("""
             SELECT u.username, q.question, ua.selected_option, q.correct_option,
-                   CASE 
-                       WHEN ua.is_correct THEN 'Correcto' 
-                       ELSE 'Incorrecto' 
+                   CASE
+                       WHEN ua.is_correct THEN 'Correcto'
+                       ELSE 'Incorrecto'
                    END AS status,
                    q.option_a, q.option_b, q.option_c, q.option_d
             FROM user_answers ua
@@ -171,9 +172,9 @@ def quiz_all_results():
     else:
         cur.execute("""
             SELECT u.username, q.question, ua.selected_option, q.correct_option,
-                   CASE 
-                       WHEN ua.is_correct THEN 'Correcto' 
-                       ELSE 'Incorrecto' 
+                   CASE
+                       WHEN ua.is_correct THEN 'Correcto'
+                       ELSE 'Incorrecto'
                    END AS status,
                    q.option_a, q.option_b, q.option_c, q.option_d
             FROM user_answers ua
@@ -217,7 +218,8 @@ def quiz_all_results_summary():
                COUNT(*) AS total_answers,
                (SELECT COUNT(*) FROM questions) AS total_questions,
                ROUND((COUNT(CASE WHEN ua.is_correct THEN 1 END) / (SELECT COUNT(*) FROM questions)) * 100, 2) AS percentage,
-               u.last_star_threshold
+               u.last_star_threshold,
+               u.star_thresholds
         FROM user_answers ua
         JOIN users u ON ua.user_id = u.id
         GROUP BY u.username
@@ -226,24 +228,44 @@ def quiz_all_results_summary():
     results = cur.fetchall()
     cur.close()
 
-    # Определяем пользователей, которые достигли новых порогов
+    # Преобразование star_thresholds в список
+    processed_results = []
     thresholds = [80, 90, 100]
-    users_with_new_stars = []
 
     for row in results:
         username = row[0]
         percentage = row[4]
         last_threshold = row[5]
+        star_thresholds = row[6]
 
-        for threshold in thresholds:
-            if percentage >= threshold > last_threshold:
-                users_with_new_stars.append({"username": username, "threshold": threshold})
-                break
+        # Преобразуем star_thresholds из строки JSON в список
+        if star_thresholds:
+            try:
+                activated_thresholds = json.loads(star_thresholds)
+            except json.JSONDecodeError:
+                activated_thresholds = []
+        else:
+            activated_thresholds = []
+
+        # Определяем, какие звёзды можно активировать
+        available_stars = [
+            threshold for threshold in thresholds
+            if percentage >= threshold and threshold not in activated_thresholds
+        ]
+
+        processed_results.append({
+            "username": username,
+            "correct_answers": row[1],
+            "total_answers": row[2],
+            "total_questions": row[3],
+            "percentage": percentage,
+            "available_stars": available_stars,
+            "activated_thresholds": activated_thresholds
+        })
 
     return render_template(
         'quiz_summary.html',
-        results=results,
-        users_with_new_stars=users_with_new_stars
+        results=processed_results
     )
 
 
@@ -333,9 +355,9 @@ def quiz_results_combined():
     if selected_user and selected_user != "Todos":
         cur.execute("""
             SELECT u.username, q.question, ua.selected_option, q.correct_option,
-                   CASE 
-                       WHEN ua.is_correct THEN 'Correcto' 
-                       ELSE 'Incorrecto' 
+                   CASE
+                       WHEN ua.is_correct THEN 'Correcto'
+                       ELSE 'Incorrecto'
                    END AS status,
                    q.option_a, q.option_b, q.option_c, q.option_d
             FROM user_answers ua
@@ -347,9 +369,9 @@ def quiz_results_combined():
     else:
         cur.execute("""
             SELECT u.username, q.question, ua.selected_option, q.correct_option,
-                   CASE 
-                       WHEN ua.is_correct THEN 'Correcto' 
-                       ELSE 'Incorrecto' 
+                   CASE
+                       WHEN ua.is_correct THEN 'Correcto'
+                       ELSE 'Incorrecto'
                    END AS status,
                    q.option_a, q.option_b, q.option_c, q.option_d
             FROM user_answers ua

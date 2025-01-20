@@ -81,7 +81,7 @@ def edit_message():
     # Проверяем, что сообщение принадлежит текущему пользователю
     cur.execute("SELECT username FROM chat_messages WHERE id = %s", (message_id,))
     result = cur.fetchone()
-    if not result or result[0] != user['username']:  # Сравниваем имя пользователя из токена
+    if not result or result[0] != user['username'].lower():  # Сравниваем имя пользователя из токена
         cur.close()
         return jsonify({'error': 'Permission denied'}), 403
 
@@ -167,7 +167,7 @@ def download_file(filename):
 @app.route('/sql_console', methods=['GET', 'POST'])
 def sql_console():
     result = []
-    command_history = session.get('command_history', []) 
+    command_history = session.get('command_history', [])
     error = ""
     tables = []
     random_gifs = [
@@ -199,7 +199,7 @@ def sql_console():
         'user': app.config['MYSQL_USER'],
         'password': app.config['MYSQL_PASSWORD']
     }
-    
+
     selected_db = session.get('selected_database')  # Получаем текущую базу из сессии
 
     # Получение списка баз данных

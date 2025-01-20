@@ -64,6 +64,51 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+               .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .floating-button:hover {
+            background: linear-gradient(135deg, #0056b3, #004494);
+            box-shadow: 0 0 20px rgba(0, 86, 179, 0.8);
+            transform: scale(1.1);
+        }
+        /* Стили для кнопки сброса и информации о сбросе */
+        .reset-button {
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .reset-button:hover {
+            background-color: #e53935;
+        }
+
+        .reset-info {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: #f44336;
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -91,5 +136,9 @@
             <p>No has cometido errores. ¡Buen trabajo! 🎉</p>
         {% endif %}
     </div>
+    <a href="/cuenta" class="floating-button">Volver</a>
+        <form method="POST" action="{{ url_for('reset_quiz') }}">
+        <button type="submit" class="reset-button">Resetear respuestas</button>
+    </form>
 </body>
 </html>

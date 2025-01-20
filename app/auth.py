@@ -203,6 +203,6 @@ def logout():
     session.clear()  # Очистка сессии
     response = redirect(url_for('login'))  # Переадресация на страницу логина
     response.delete_cookie('auth_token')  # Удаление токена из куки
-    flash('Вы вышли из системы', 'success')
+    flash('Has salido de systema, que triste', 'success')
     return response
 
