@@ -197,7 +197,11 @@ def sql_console():
     db_config = {
         'host': app.config['MYSQL_HOST'],
         'user': app.config['MYSQL_USER'],
-        'password': app.config['MYSQL_PASSWORD']
+        'password': app.config['MYSQL_PASSWORD'],
+        'database': app.config['MYSQL_DB'],  # Указываем базу данных
+        'port': app.config.get('MYSQL_PORT', 3306),  # Указываем порт, если он отличается от стандартного
+        'ssl_ca': app.config.get('MYSQL_SSL_CA'),  # Указываем путь к сертификату SSL, если используется
+        'ssl_disabled': False  # Убедитесь, что SSL не отключён
     }
 
     selected_db = session.get('selected_database')  # Получаем текущую базу из сессии

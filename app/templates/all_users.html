@@ -189,7 +189,7 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Estrellas</th>
-                    {% if username == 'Serka' %}
+                    {% if username in ['profe', 'Serka', 'serka'] %}
                     <th>Acciones</th>
                     {% endif %}
                 </tr>
@@ -216,7 +216,7 @@
                             <span class="small-star">★</span>
                         {% endfor %}
                     </td>
-					{% if username == 'Serka' %}
+					{% if username in ['profe', 'Serka', 'serka'] %}
 					<td>
 						<div class="button-container">
 							<button class="button" onclick="updateStars('{{ user[0] }}', 1)">+</button>
